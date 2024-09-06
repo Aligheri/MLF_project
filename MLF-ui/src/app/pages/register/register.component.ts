@@ -1,20 +1,16 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {RegisterRequest} from "../../services/models/register-request";
-import {NgForOf, NgIf} from "@angular/common";
-import {FormsModule} from "@angular/forms";
 import {Router} from "@angular/router";
 import {AuthenticationControllerService} from "../../services/services/authentication-controller.service";
+import {FormsModule} from "@angular/forms";
+import {NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-register',
-  standalone: true,
-  imports: [
-    NgForOf,
-    FormsModule,
-    NgIf
-  ],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrl: './register.component.scss',
+  standalone: true,
+  imports: [FormsModule, NgForOf, NgIf]
 })
 export class RegisterComponent {
 
@@ -25,7 +21,7 @@ export class RegisterComponent {
   }
 
 
-  registerRequest : RegisterRequest = {
+  registerRequest: RegisterRequest = {
     email: '',
     password: '',
     username: '',

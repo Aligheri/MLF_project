@@ -1,22 +1,21 @@
 import {Component} from '@angular/core';
 import {LoginRequest} from "../../services/models/login-request";
-import {FormsModule} from "@angular/forms";
 import {Router} from "@angular/router";
-import {CommonModule, NgForOf, NgIf} from '@angular/common';
 import {AuthenticationControllerService} from "../../services/services/authentication-controller.service";
 import {TokenService} from "../../services/token/token.service";
+import {FormsModule} from "@angular/forms";
+import {NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-login',
-  standalone: true,
   templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
   imports: [
-    CommonModule,
-    NgIf,
+    FormsModule,
     NgForOf,
-    FormsModule
+    NgIf
   ],
-  styleUrls: ['./login.component.scss']
+  standalone: true
 })
 export class LoginComponent {
 
