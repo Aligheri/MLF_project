@@ -1,12 +1,26 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {ActivateAccountComponent} from "./pages/activate-account/activate-account.component";
+import {RegisterComponent} from "./pages/register/register.component";
+import {LoginComponent} from "./pages/login/login.component";
+import {CodeInputModule} from "angular-code-input";
+import {HttpClientModule} from "@angular/common/http";
+import {FormsModule} from "@angular/forms";
+import {RouterOutlet} from "@angular/router";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss'],
+  imports: [
+    FormsModule,
+    HttpClientModule,
+    CodeInputModule,
+    LoginComponent,
+    RegisterComponent,
+    ActivateAccountComponent,
+    RouterOutlet
+  ]
 })
 export class AppComponent {
   title = 'MLF-ui';
