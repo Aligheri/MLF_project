@@ -7,7 +7,7 @@ import com.mlf_project.dto.response.AuthenticationResponse;
 import com.mlf_project.dto.response.MessageResponse;
 import com.mlf_project.dto.response.RefreshTokenResponse;
 import com.mlf_project.entities.*;
-import com.mlf_project.config.handler.TokenRefreshException;
+import com.mlf_project.exception.TokenRefreshException;
 import com.mlf_project.repository.RoleRepository;
 import com.mlf_project.repository.TokenRepository;
 import com.mlf_project.repository.UserRepository;

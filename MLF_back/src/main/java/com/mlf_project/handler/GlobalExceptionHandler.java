@@ -1,5 +1,7 @@
-package com.mlf_project.config.handler;
+package com.mlf_project.handler;
 
+import com.mlf_project.exception.PermissionDeniedException;
+import com.mlf_project.exception.TokenRefreshException;
 import jakarta.mail.MessagingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.mlf_project.config.handler.BusinessErrorCodes.*;
+import static com.mlf_project.handler.BusinessErrorCodes.*;
 import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
@@ -103,6 +105,17 @@ public class GlobalExceptionHandler {
                                 .build()
                 );
 
+    }
+
+    @ExceptionHandler(PermissionDeniedException.class)
+    public ResponseEntity<ExceptionResponse> handleException(PermissionDeniedException exp) {
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(
+                        ExceptionResponse.builder()
+                                .error(exp.getMessage())
+                                .build()
+                );
     }
 
     @ExceptionHandler(Exception.class)

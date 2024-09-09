@@ -1,4 +1,4 @@
-package com.mlf_project.config.handler;
+package com.mlf_project.handler;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
