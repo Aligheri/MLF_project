@@ -1,7 +1,7 @@
 package com.mlf_project.security.jwt;
 
 import com.mlf_project.entities.RefreshToken;
-import com.mlf_project.config.handler.TokenRefreshException;
+import com.mlf_project.exception.TokenRefreshException;
 import com.mlf_project.repository.RefreshTokenRepository;
 import com.mlf_project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

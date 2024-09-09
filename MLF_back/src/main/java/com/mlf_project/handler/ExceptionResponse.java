@@ -1,4 +1,4 @@
-package com.mlf_project.config.handler;
+package com.mlf_project.handler;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

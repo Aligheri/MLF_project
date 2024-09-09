@@ -1,4 +1,4 @@
-package com.mlf_project.config.handler;
+package com.mlf_project.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
