@@ -4,10 +4,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/articles")
@@ -20,37 +23,41 @@ public class ArticleController {
 
 
     @PostMapping
-    public ResponseEntity<ArticleResponse> createArticle(@Valid @RequestBody ArticleRequest articleRequest) {
-        Article article = articleMapper.toArticle(articleRequest);
-        Article savedArticle = articleService.saveArticle(article);
+    public ResponseEntity<ArticleResponse> createArticle(@Valid @RequestBody ArticleRequest articleRequest, Authentication authentication) {
+        Article savedArticle = articleService.saveArticle(articleRequest, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(articleMapper.toArticleResponse(savedArticle));
     }
 
-    @GetMapping
-    public ResponseEntity<List<ArticleResponse>> getAllArticles() {
-        List<ArticleResponse> articles = articleService.getAllArticles().stream()
+
+    @GetMapping("/my-articles")
+    public ResponseEntity<List<ArticleResponse>> getMyArticles(Authentication authentication) {
+        List<ArticleResponse> articles = articleService.getArticlesByOwner(authentication).stream()
                 .map(articleMapper::toArticleResponse)
-                .toList();
+                .collect(Collectors.toList());
         return ResponseEntity.ok(articles);
     }
 
-    @GetMapping("/by-topic")
-    public ResponseEntity<List<ArticleResponse>> getArticlesByTopic(@RequestParam String topic) {
-        List<ArticleResponse> articles = articleService.getArticlesByTopic(topic).stream()
-                .map(articleMapper::toArticleResponse)
-                .toList();
-        return ResponseEntity.ok(articles);
+    @GetMapping("/my-articles-by-topic")
+    public ResponseEntity<Map<String, List<ArticleResponse>>> getMyArticlesGroupedByTopic(Authentication authentication) {
+        Map<String, List<ArticleResponse>> articlesGroupedByTopic = articleService.getArticlesGroupedByTopic(authentication);
+        return ResponseEntity.ok(articlesGroupedByTopic);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
-        articleService.deleteArticle(id);
+    public ResponseEntity<Void> deleteArticle(@PathVariable Long id, Authentication authentication) {
+        articleService.deleteArticle(id, authentication);
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/archive/{id}")
+    public ResponseEntity<Void> archiveArticle(@PathVariable Long id, Authentication authentication) {
+        articleService.archiveArticle(id, authentication);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/by-topic")
-    public ResponseEntity<Void> deleteArticlesByTopic(@RequestParam String topic) {
-        articleService.deleteArticlesByTopic(topic);
+    public ResponseEntity<Void> deleteArticlesByTopic(@RequestParam String topic, Authentication authentication) {
+        articleService.deleteArticlesByTopic(topic, authentication);
         return ResponseEntity.noContent().build();
     }
 }
