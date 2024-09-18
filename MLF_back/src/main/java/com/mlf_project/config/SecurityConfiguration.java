@@ -32,10 +32,6 @@ public class SecurityConfiguration extends SecurityConfigurerAdapter<DefaultSecu
         http
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-//               .cors(httpSecurityCorsConfigurer ->
-//                        httpSecurityCorsConfigurer.configurationSource(request ->
-//                                new CorsConfiguration().applyPermitDefaultValues())
-//                )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(unauthorizedHandler)
                 )
@@ -45,7 +41,7 @@ public class SecurityConfiguration extends SecurityConfigurerAdapter<DefaultSecu
                 .httpBasic(withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("api/auth/**").permitAll()
-                        .requestMatchers("/", "/auth/**",
+                        .requestMatchers("/auth/**",
                                 "/v2/api-docs",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
