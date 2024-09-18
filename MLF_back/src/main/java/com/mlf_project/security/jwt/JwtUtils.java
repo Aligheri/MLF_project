@@ -5,8 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.mlf_project.entities.Token;
-import com.mlf_project.entities.User;
+import com.mlf_project.exception.PermissionDeniedException;
 import com.mlf_project.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -27,14 +26,11 @@ import org.springframework.stereotype.Service;
 import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 
 import static com.auth0.jwt.JWT.require;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC256;
-import static java.util.regex.Pattern.matches;
 
 
 @Service
@@ -53,20 +49,10 @@ public class JwtUtils {
     private final TokenRepository tokenRepository;
 
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-    }
-
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -108,11 +94,15 @@ public class JwtUtils {
         response.addHeader("Set-Cookie", fingerprintCookie);
 
         System.out.println(fingerprintCookie);
+
+        System.out.println(fingerprintCookie);
         System.out.println(userFingerprint);
 
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
-        String userFingerprintHash = Hex.encodeHexString(userFingerprintDigest);
+        String userFingerprintHash = Hex.encodeHexString(userFingerprintDigest).toLowerCase();
+
+        System.out.println("Generated userFingerprintHash: " + userFingerprintHash);
 
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
@@ -133,157 +123,88 @@ public class JwtUtils {
                 .withHeader(headerClaims)
                 .sign(algorithm);
     }
-
-    //TODO убрать дублирование
-//   public String generateTokenFromUserAndSave(HttpServletResponse response, User user, String issuerId) throws NoSuchAlgorithmException{
-//       SecureRandom secureRandom = new SecureRandom();
-//       byte[] randomFgp = new byte[50];
-//       secureRandom.nextBytes(randomFgp);
-//       String userFingerprint = Hex.encodeHexString(randomFgp);
-//
-//       String fingerprintCookie = "__Secure-Fgp=" + userFingerprint + "; SameSite=Strict; HttpOnly; Secure";
-//       response.addHeader("Set-Cookie", fingerprintCookie);
-//
-//       System.out.println(fingerprintCookie);
-//       System.out.println(userFingerprint);
-//
-//       MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//       byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
-//       String userFingerprintHash = Hex.encodeHexString(userFingerprintDigest);
-//
-//       Calendar c = Calendar.getInstance();
-//       Date now = c.getTime();
-//       c.add(Calendar.MINUTE, 15);
-//       Date expirationDate = c.getTime();
-//
-//       Map<String, Object> headerClaims = new HashMap<>();
-//       headerClaims.put("typ", "JWT");
-//
-//       Algorithm algorithm = HMAC256(SECRET_KEY);
-//
-//       String generatedToken = JWT.create()
-//               .withSubject(user.getUsername())
-//               .withExpiresAt(expirationDate)
-//               .withIssuer(issuerId)
-//               .withNotBefore(now)
-//               .withClaim("userFingerprint", userFingerprintHash)
-//               .withHeader(headerClaims)
-//               .sign(algorithm);
-//
-//       saveToken(user, generatedToken, expirationDate);
-//
-//       return generatedToken;
-//   }
-    private void saveToken(User user, String token, Date expirationDate) {
-        Token newToken = Token.builder()
-                .token(token)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(expirationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
-                .user(user)
-                .build();
-
-        tokenRepository.save(newToken);
-    }
-
-//    public String validateToken(String token, HttpServletRequest request) throws Exception {
-//        if (token != null) {
-//            try {
-//                logger.debug("Token received for validation: {}", token);
-//                String decipheredToken = tokenCipher.decipherToken(token);
-//
-//                Claims claims = Jwts.parser()
-//                        .setSigningKey(Base64.getEncoder().encodeToString(SECRET_KEY.getBytes()))
-//                        .requireIssuer(ISSUER_UD)
-//                        .parseClaimsJws(decipheredToken)
-//                        .getBody();
-//
-//                // Extract user fingerprint from cookie (optional)
-//                String userFingerprint = getUserFingerprintFromCookie(request);
-//                if (userFingerprint != null) {
-//                    // Validate user fingerprint pattern
-//                    if (!Pattern.matches("[A-Z0-9]{100}", userFingerprint)) {
-//                        throw new IllegalArgumentException("Invalid user fingerprint!");
-//                    }
-//
-//                    // Compute SHA-256 hash of the user fingerprint and compare with the claim
-//                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-//                    byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
-//                    String userFingerprintHash = Base64.getEncoder().encodeToString(userFingerprintDigest);
-//
-//                    if (!claims.get("userFingerprint", String.class).equals(userFingerprintHash)) {
-//                        throw new IllegalArgumentException("User fingerprint mismatch!");
-//                    }
-//                }
-//                return "Token OK - Welcome '" + claims.getSubject() + "'!'";
-//            } catch (ExpiredJwtException | MalformedJwtException | SignatureException | UnsupportedJwtException ex) {
-//                throw new IllegalArgumentException("Invalid token!", ex);
-//            }
-//        } else {
-//            throw new IllegalArgumentException("Token is mandatory!");
-//        }
-//    }
-
-    public String validateToken(String authToken, HttpServletRequest request) throws GeneralSecurityException {
+    public Boolean validateToken(String authToken, HttpServletRequest request) throws GeneralSecurityException {
         String token = authToken.trim();
-        System.out.println("Validating token: " + token);
+        logger.info("Validating token: " + token);
 
         String decipheredToken = tokenCipher.decipherToken(authToken);
-        System.out.println("Deciphered token: " + decipheredToken);
+        logger.info("Deciphered token: " + decipheredToken);
+
         try {
             if (this.tokenRevoker.isTokenRevoked(authToken)) {
-                System.out.println("Token already revoked !");
-                return "Token already revoked !";
-            } else {
-                String userFingerprint = null;
-                if (request.getCookies() != null && request.getCookies().length > 0) {
-                    List<Cookie> cookies = Arrays.stream(request.getCookies()).toList();
-                    Optional<Cookie> cookie = cookies.stream().filter(c -> "__Secure-Fgp".equals(c.getName())).findFirst();
-                    if (cookie.isPresent()) {
-                        userFingerprint = cookie.get().getValue();
-                    }
-                }
-                System.out.println("FGP ===> " + userFingerprint);
-                if (userFingerprint != null && matches("[A-Z0-9]{100}", userFingerprint)) {
+                logger.info("Token already revoked !");
+                logger.info("Token already revoked !");
 
-//                    String token = this.tokenCipher.decipherToken(authToken);
+                return false;
+            }
 
-                    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                    byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
-                    String userFingerprintHash = DatatypeConverter.printHexBinary(userFingerprintDigest);
+            String userFingerprint = null;
 
-                    JWTVerifier verifier = require(HMAC256(this.SECRET_KEY))
-                            .withIssuer(this.ISSUER_UD)
-                            .withClaim("userFingerprint", userFingerprintHash)
-                            .build();
-
-                    DecodedJWT decodedToken = verifier.verify(decipheredToken);
-
-                    return "Token OK - Welcome '" + decodedToken.getSubject() + "' !";
+            if (request.getCookies() != null && request.getCookies().length > 0) {
+                List<Cookie> cookies = Arrays.stream(request.getCookies()).toList();
+                Optional<Cookie> cookie = cookies.stream().filter(c -> "__Secure-Fgp".equals(c.getName())).findFirst();
+                if (cookie.isPresent()) {
+                    userFingerprint = cookie.get().getValue();
+                    logger.info("Found userFingerprint: " + userFingerprint);
                 } else {
-                    return "Invalid parameter provided !";
+                    logger.info("Cookie '__Secure-Fgp' not found!");
                 }
+            } else {
+                logger.info("No cookies in the request.");
+            }
+
+            logger.info("FGP ===> " + userFingerprint);
+
+            if (userFingerprint != null && userFingerprint.matches("[a-zA-Z0-9]{100}")) {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
+                String userFingerprintHash = DatatypeConverter.printHexBinary(userFingerprintDigest).toLowerCase();
+
+
+                logger.info("Verifying userFingerprintHash: " + userFingerprintHash);
+
+                JWTVerifier verifier = require(HMAC256(this.SECRET_KEY))
+                        .withIssuer(this.ISSUER_UD)
+                        .withClaim("userFingerprint", userFingerprintHash)
+                        .build();
+
+                DecodedJWT decodedToken = verifier.verify(decipheredToken);
+
+                logger.info("Token successfully verified for subject: " + decodedToken.getSubject());
+
+                logger.info("Token OK - Welcome '" + decodedToken.getSubject() + "' !");
+                return true;
+            } else {
+                logger.info("Invalid userFingerprint provided or missing!");
+                logger.info("Invalid userFingerprint provided or missing!");
+                return false;
             }
         } catch (JWTVerificationException e) {
             logger.warn("Verification of the token failed", e);
-            return "Invalid token !";
+            return false;
         } catch (Exception e) {
             logger.warn("Error during token validation", e);
-            return "An error occur !";
+            return false;
         }
     }
 
-//    private String getUserFingerprintFromCookie(HttpServletRequest request) {
-//        if (request.getCookies() != null && request.getCookies().length > 0) {
-//            List<Cookie> cookies = Arrays.stream(request.getCookies()).toList();
-//            Optional<Cookie> cookie = cookies.stream()
-//                    .filter(c -> "__Secure-Fgp".equals(c.getName()))
-//                    .findFirst();
-//            return cookie.map(Cookie::getValue).orElse(null);
-//        }
-//        return null;
-//    }
+    public String getUsernameFromJwtToken(String token) {
+        try {
+            String decipheredToken = tokenCipher.decipherToken(token);
 
-    public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+            DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(SECRET_KEY))
+                    .withIssuer(ISSUER_UD)
+                    .build()
+                    .verify(decipheredToken);
+            logger.info("getUsername Method " + decodedJWT.getSubject());
+            return decodedJWT.getSubject();
+
+        } catch (JWTVerificationException e) {
+            logger.error("Invalid or expired JWT token", e);
+            throw new PermissionDeniedException();
+
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
