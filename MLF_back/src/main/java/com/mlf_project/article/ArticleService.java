@@ -41,15 +41,21 @@ public class ArticleService {
         return articleRepository.save(article);
     }
 
-//TODO User user = (User) connectedUser.getPrincipal(); ->  UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
-    public List<Article> getArticlesByOwner(Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
+
+    public List<Article> getArticles(Authentication connectedUser) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return articleRepository.findAll(ArticleSpecification.withOwnerId(user.getId()));
     }
-    //TODO User user = (User) connectedUser.getPrincipal(); ->  UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+
+
     public Map<String, List<ArticleResponse>> getArticlesGroupedByTopic(Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         List<Article> articles = articleRepository.findAll(ArticleSpecification.withOwnerId(user.getId()));
 
         return articles.stream()
@@ -59,9 +65,11 @@ public class ArticleService {
                 ));
     }
 
-    //TODO User user = (User) connectedUser.getPrincipal(); ->  UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
     public void deleteArticle(Long id, Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No article found with ID:: " + id));
         if (!Objects.equals(article.getOwner().getId(), user.getId())) {
@@ -70,9 +78,12 @@ public class ArticleService {
         articleRepository.delete(article);
     }
 
-    //TODO User user = (User) connectedUser.getPrincipal(); ->  UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+
     public void archiveArticle(Long id, Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("No article found with ID:: " + id));
         if (!Objects.equals(article.getOwner().getId(), user.getId())) {
@@ -81,9 +92,12 @@ public class ArticleService {
         article.setArchived(!article.isArchived());
         articleRepository.save(article);
     }
-    //TODO User user = (User) connectedUser.getPrincipal(); ->  UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+
     public void deleteArticlesByTopic(String topic, Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         List<Article> articles = articleRepository.findByTopicAndOwnerId(topic, user.getId());
         if (articles.isEmpty()) {
             throw new EntityNotFoundException("No articles found with topic: " + topic);

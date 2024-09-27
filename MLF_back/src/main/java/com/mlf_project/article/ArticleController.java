@@ -30,40 +30,45 @@ public class ArticleController {
         this.articleMapper = articleMapper;
     }
 
+    //Tested
     @PostMapping
     public ResponseEntity<ArticleResponse> createArticle(@Valid @RequestBody ArticleRequest articleRequest, Authentication authentication) {
         Article savedArticle = articleService.saveArticle(articleRequest, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(articleMapper.toArticleResponse(savedArticle));
     }
 
-
+    //Tested
     @GetMapping("/my-articles")
-    public ResponseEntity<List<ArticleResponse>> getMyArticles(Authentication authentication) {
-        List<ArticleResponse> articles = articleService.getArticlesByOwner(authentication).stream()
+    public ResponseEntity<List<ArticleResponse>> getArticles(Authentication authentication) {
+        List<ArticleResponse> articles = articleService.getArticles(authentication).stream()
                 .map(articleMapper::toArticleResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(articles);
     }
 
+    //Tested
     @GetMapping("/my-articles-by-topic")
-    public ResponseEntity<Map<String, List<ArticleResponse>>> getMyArticlesGroupedByTopic(Authentication authentication) {
+    public ResponseEntity<Map<String, List<ArticleResponse>>> getArticlesGroupedByTopic(Authentication authentication) {
         Map<String, List<ArticleResponse>> articlesGroupedByTopic = articleService.getArticlesGroupedByTopic(authentication);
         return ResponseEntity.ok(articlesGroupedByTopic);
     }
 
+    //Tested
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteArticle(@PathVariable Long id, Authentication authentication) {
         articleService.deleteArticle(id, authentication);
         return ResponseEntity.noContent().build();
     }
 
+    //Tested
     @PutMapping("/archive/{id}")
     public ResponseEntity<Void> archiveArticle(@PathVariable Long id, Authentication authentication) {
         articleService.archiveArticle(id, authentication);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/by-topic")
+    //Tested
+    @DeleteMapping("/delete-by-topic")
     public ResponseEntity<Void> deleteArticlesByTopic(@RequestParam String topic, Authentication authentication) {
         articleService.deleteArticlesByTopic(topic, authentication);
         return ResponseEntity.noContent().build();
