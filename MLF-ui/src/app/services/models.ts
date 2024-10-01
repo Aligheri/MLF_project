@@ -1,5 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
+export { ArticleRequest } from './models/article-request';
+export { ArticleResponse } from './models/article-response';
 export { AuthenticationResponse } from './models/authentication-response';
 export { LoginRequest } from './models/login-request';
 export { MessageResponse } from './models/message-response';
