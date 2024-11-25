@@ -34,7 +34,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -74,7 +73,7 @@ public class AuthenticationService {
     private String activationUrl;
 
 
-    public MessageResponse registerUser(RegisterRequest registerRequest) throws NoSuchAlgorithmException, MessagingException {
+    public MessageResponse registerUser(RegisterRequest registerRequest) throws MessagingException {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
             return new MessageResponse("Error: Username is already taken!");
         }
@@ -130,7 +129,7 @@ public class AuthenticationService {
     }
 
 
-    private void sendValidationEmail(User user) throws NoSuchAlgorithmException, MessagingException {
+    private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
         emailService.sendEmail(
                 user.getEmail(),
@@ -142,7 +141,7 @@ public class AuthenticationService {
         );
     }
 
-    private String generateAndSaveActivationToken(User user) throws NoSuchAlgorithmException {
+    private String generateAndSaveActivationToken(User user) {
         String generatedToken = generateActivationCode(6);
         var token = Token.builder()
                 .token(generatedToken)
@@ -167,7 +166,12 @@ public class AuthenticationService {
         return codeBuilder.toString();
     }
 
-    public AuthenticationResponse authenticateUser(LoginRequest loginRequest, HttpServletResponse response, String issuerId) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public void deleteCookie(HttpServletResponse response, String name) {
+        String cookieValue = name + "=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Strict";
+        response.addHeader("Set-Cookie", cookieValue);
+    }
+
+    public AuthenticationResponse authenticateUser(LoginRequest loginRequest, HttpServletResponse response, String issuerId) throws NoSuchAlgorithmException {
         Authentication authentication;
         try {
             authentication = authenticationManager
@@ -181,7 +185,18 @@ public class AuthenticationService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        String jwt = jwtUtils.generateAccessTokenFromUserDetails(response, userDetails, issuerId);
+        // Генерация userFingerprint
+        String userFingerprint = jwtUtils.createUserFingerprint();
+        System.out.println("Generated userFingerprint: " + userFingerprint);
+
+        // Создание userFingerprintHash
+        String userFingerprintHash = jwtUtils.hashFingerprint(userFingerprint);
+        System.out.println("Generated userFingerprintHash: " + userFingerprintHash);
+
+        String jwt = jwtUtils.generateAccessTokenFromUserDetails(userDetails, issuerId, userFingerprintHash);
+
+         jwtUtils.createCookie(response, "fingerprint", userFingerprint, 24 * 60 * 60, true, false);
+
         String cipheredJwt;
         try {
             cipheredJwt = tokenCipher.cipherToken(jwt);
@@ -211,7 +226,7 @@ public class AuthenticationService {
                     String token;
                     String cipheredToken;
                     try {
-                        token = jwtUtils.generateAccessTokenFromUsername(refreshToken.getUser().getUsername(), response, issuerId);
+                        token = jwtUtils.generateAccessTokenFromUsername(refreshToken.getUser().getUsername(), issuerId,"1212");
                     } catch (NoSuchAlgorithmException e) {
                         throw new RuntimeException(e);
                     }
@@ -238,16 +253,16 @@ public class AuthenticationService {
         return messageResponse;
     }
 
-//    @Transactional
-    public void activateAccount(String token) throws MessagingException, NoSuchAlgorithmException {
-    Token savedToken = tokenRepository.findByToken(token)
-            .orElseThrow(()-> new RuntimeException("Invalid Token"));
-    if(LocalDateTime.now().isAfter(savedToken.getExpiresAt())){
-        sendValidationEmail(savedToken.getUser());
-        throw new RuntimeException("Activation token has expired. A new token has been sent to the same email address");
-    }
-    var user = userRepository.findById(savedToken.getUser().getId())
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+    public void activateAccount(String token) throws MessagingException {
+        Token savedToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid Token"));
+        if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
+            sendValidationEmail(savedToken.getUser());
+            throw new RuntimeException("Activation token has expired. A new token has been sent to the same email address");
+        }
+        var user = userRepository.findById(savedToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         UserStatus userStatus = user.getUserStatus();
         if (userStatus == null) {

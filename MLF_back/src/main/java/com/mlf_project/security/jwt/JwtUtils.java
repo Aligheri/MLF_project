@@ -6,7 +6,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mlf_project.exception.PermissionDeniedException;
-import com.mlf_project.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -46,13 +45,13 @@ public class JwtUtils {
     private transient String ISSUER_UD;
     private final TokenCipher tokenCipher;
     private final TokenRevoker tokenRevoker;
-    private final TokenRepository tokenRepository;
 
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -75,38 +74,96 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateAccessTokenFromUserDetails(HttpServletResponse response, UserDetails userDetails, String issuerId) throws NoSuchAlgorithmException {
-        return generateToken(response, userDetails.getUsername(), issuerId);
+    public String generateAccessTokenFromUserDetails(UserDetails userDetails, String issuerId,String userFingerprintHash ) throws NoSuchAlgorithmException {
+        return generateToken( userDetails.getUsername(), issuerId, userFingerprintHash);
     }
 
-    public String generateAccessTokenFromUsername(String username, HttpServletResponse response, String issuerId) throws NoSuchAlgorithmException {
-        return generateToken(response, username, issuerId);
+    public String generateAccessTokenFromUsername(String username, String issuerId,String userFingerprintHash) throws NoSuchAlgorithmException {
+        return generateToken( username, issuerId,userFingerprintHash);
+    }
+
+    public String hashFingerprint(String userFingerprint) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
+        return Hex.encodeHexString(userFingerprintDigest).toLowerCase();
     }
 
 
-    private String generateToken(HttpServletResponse response, String username, String issuerId) throws NoSuchAlgorithmException {
+//    public void createCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+//        ResponseCookie cookie = ResponseCookie.from(name, value)
+//                .path("/")// Кука доступна для всего приложения
+//                .httpOnly(httpOnly) // Доступна только через HTTP
+//                .secure(secure) // Использовать только по HTTPS
+//                .sameSite("None") // Защита от CSRF
+//                .maxAge(maxAge) // Время жизни куки в секундах
+//                .build();
+//
+//        System.out.println("Set-Cookie header: " + cookie);
+//        response.addHeader("Set-Cookie", String.valueOf(cookie));
+//    }
+
+    public void createCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+        // Создаем объект Cookie
+        Cookie cookie = new Cookie(name, value);
+
+        // Настраиваем параметры куки
+        cookie.setPath("/"); // Кука доступна для всего приложения
+        cookie.setHttpOnly(httpOnly); // Доступна только через HTTP
+        cookie.setSecure(secure); // Использовать только по HTTPS
+        cookie.setMaxAge(maxAge); // Время жизни куки в секундах
+
+        // Указываем SameSite=None через настройку заголовка (т.к. стандартный Cookie API не поддерживает SameSite)
+        response.addHeader("Set-Cookie", String.format(
+                "%s=%s; Path=%s; Max-Age=%d; HttpOnly=%s; Secure=%s; SameSite=None",
+                cookie.getName(),
+                cookie.getValue(),
+                cookie.getPath(),
+                cookie.getMaxAge(),
+                httpOnly ? "true" : "false",
+                secure ? "true" : "false"
+        ));
+        response.addCookie(cookie);
+
+        System.out.println("Set-Cookie header: " + cookie);
+    }
+
+
+
+
+    public String createUserFingerprint(){
         SecureRandom secureRandom = new SecureRandom();
         byte[] randomFgp = new byte[50];
         secureRandom.nextBytes(randomFgp);
-        String userFingerprint = Hex.encodeHexString(randomFgp);
+        return Hex.encodeHexString(randomFgp);
+    }
 
-        String fingerprintCookie = "__Secure-Fgp=" + userFingerprint + "; SameSite=Strict; HttpOnly; Secure";
-        response.addHeader("Set-Cookie", fingerprintCookie);
+//    public String extractUserFingerprint(String jwt) {
+//        DecodedJWT decodedJWT = JWT.decode(jwt);
+//
+//        String userFingerprint = decodedJWT.getClaim("userFingerprint").asString();
+//
+//        return userFingerprint;
+//    }
 
-        System.out.println(fingerprintCookie);
 
-        System.out.println(fingerprintCookie);
-        System.out.println(userFingerprint);
-
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
-        String userFingerprintHash = Hex.encodeHexString(userFingerprintDigest).toLowerCase();
-
-        System.out.println("Generated userFingerprintHash: " + userFingerprintHash);
+    private String generateToken( String username, String issuerId, String userFingerprintHash) {
+//        SecureRandom secureRandom = new SecureRandom();
+//        byte[] randomFgp = new byte[50];
+//        secureRandom.nextBytes(randomFgp);
+//        String userFingerprint = Hex.encodeHexString(randomFgp);
+        //TODO make https for secure attribute
+//        String userFingerprint = createUserFingerprint();
+//        System.out.println("Fingerprint cookie: " + userFingerprint);
+//
+//        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+//        byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
+//        String userFingerprintHash = Hex.encodeHexString(userFingerprintDigest).toLowerCase();
+//
+//        System.out.println("Generated userFingerprintHash: " + userFingerprintHash);
 
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
-        c.add(Calendar.MINUTE, 15);
+        c.add(Calendar.HOUR, 24);
         Date expirationDate = c.getTime();
 
         Map<String, Object> headerClaims = new HashMap<>();
@@ -142,12 +199,12 @@ public class JwtUtils {
 
             if (request.getCookies() != null && request.getCookies().length > 0) {
                 List<Cookie> cookies = Arrays.stream(request.getCookies()).toList();
-                Optional<Cookie> cookie = cookies.stream().filter(c -> "__Secure-Fgp".equals(c.getName())).findFirst();
+                Optional<Cookie> cookie = cookies.stream().filter(c -> "fingerprint".equals(c.getName())).findFirst();
                 if (cookie.isPresent()) {
                     userFingerprint = cookie.get().getValue();
                     logger.info("Found userFingerprint: " + userFingerprint);
                 } else {
-                    logger.info("Cookie '__Secure-Fgp' not found!");
+                    logger.info("Cookie '__secure-Fgp' not found!");
                 }
             } else {
                 logger.info("No cookies in the request.");
@@ -155,7 +212,7 @@ public class JwtUtils {
 
             logger.info("FGP ===> " + userFingerprint);
 
-            if (userFingerprint != null && userFingerprint.matches("[a-zA-Z0-9]{100}")) {
+            if (userFingerprint != null && userFingerprint.matches("[a-zA-Z0-9]{1,10}")) {
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
                 byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
                 String userFingerprintHash = DatatypeConverter.printHexBinary(userFingerprintDigest).toLowerCase();
@@ -207,4 +264,5 @@ public class JwtUtils {
             throw new RuntimeException(e);
         }
     }
+
 }

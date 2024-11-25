@@ -18,13 +18,13 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
 @RequestMapping("/api/auth")
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", maxAge = 3600)
+//@CrossOrigin(origins = "*", maxAge = 86400)
+@CrossOrigin(origins = "http://localhost:4200/*", allowCredentials = "true",maxAge = 86400)
 @RestController
 public class AuthenticationController {
 
@@ -49,7 +49,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public ResponseEntity<AuthenticationResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws  NoSuchAlgorithmException {
 
             logger.info("Attempting to authenticate user: {}", loginRequest.getUsername());
 //            AuthenticationResponse authenticationResponse = authenticationService.authenticateUser(loginRequest, response, issuerId);

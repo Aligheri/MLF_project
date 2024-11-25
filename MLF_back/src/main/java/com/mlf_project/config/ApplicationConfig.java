@@ -66,6 +66,7 @@ public class ApplicationConfig {
                 "PUT",
                 "PATCH"
         ));
+        config.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
