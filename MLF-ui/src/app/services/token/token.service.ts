@@ -5,7 +5,6 @@ import { Injectable } from '@angular/core';
 })
 export class TokenService {
 
-  //TODO save the toke into the sessionStorage
 
   set token(token : string){
     sessionStorage.setItem('token', token);
