@@ -1,0 +1,29 @@
+.article-item {
+  background-color: #f9f9f9; /* Светлый фон */
+  border: 1px solid #ddd; /* Легкая граница */
+  border-radius: 8px; /* Скругленные углы */
+  padding: 16px; /* Внутренний отступ */
+  width: calc(33.333% - 16px); /* Ширина блока */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Тень */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.article-title {
+  font-size: 1.2rem;
+  color: #333; /* Темный текст */
+  margin-bottom: 8px;
+}
+
+.article-topic {
+  font-size: 1rem;
+  color: #666; /* Серый текст */
+  margin-bottom: 16px;
+}
+
+.btn {
+  align-self: flex-end; /* Кнопка выровнена по правому краю */
+  text-transform: uppercase; /* Верхний регистр текста */
+  font-weight: bold;
+}
