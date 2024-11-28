@@ -3,9 +3,10 @@ import {ActivateAccountComponent} from "./pages/activate-account/activate-accoun
 import {RegisterComponent} from "./pages/register/register.component";
 import {LoginComponent} from "./pages/login/login.component";
 import {CodeInputModule} from "angular-code-input";
-import {HttpClientModule} from "@angular/common/http";
+import { HttpClientModule} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
-import {RouterOutlet} from "@angular/router";
+import {RouterModule, RouterOutlet} from "@angular/router";
+import {NavbarComponent} from "./modules/pages/navbar/navbar.component";
 
 
 @Component({
@@ -20,6 +21,8 @@ import {RouterOutlet} from "@angular/router";
     LoginComponent,
     RegisterComponent,
     ActivateAccountComponent,
+    RouterModule,
+    NavbarComponent,
     RouterOutlet
   ]
 })

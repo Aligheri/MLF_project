@@ -1,9 +1,11 @@
 <h3>My articles</h3>
-<hr>
-<div class = "d-flex justify-content-start gap-2 flex-wrap">
+<hr />
+<div class="d-flex justify-content-start gap-2 flex-wrap">
   <div *ngFor="let article of articleResponse" class="article-item">
-    <h3>{{ article.title }}</h3>
-    <p>{{ article.topic }}</p>
-    <a [href]="article.url" target="_blank">Read on..</a>
+    <h3 class="article-title">{{ article.title }}</h3>
+    <p class="article-topic">{{ article.topic }}</p>
+    <a [href]="article.url" target="_blank" class="btn btn-primary">
+      <i class="fas fa-book"></i> Read on..
+    </a>
   </div>
 </div>

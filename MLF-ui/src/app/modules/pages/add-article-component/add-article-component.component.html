@@ -1,0 +1,37 @@
+<div class="add-article-box">
+  <h2>Add New Article</h2>
+  <p>Fill in the details below to add a new article to your list:</p>
+
+  <form [formGroup]="articleForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <input id="url" formControlName="url" type="text" required />
+      <label for="url">URL</label>
+      <div *ngIf="articleForm.get('url')?.invalid && articleForm.get('url')?.touched" class="error-messages">
+        <small *ngIf="articleForm.get('url')?.errors?.['required']">URL is required.</small>
+        <small *ngIf="articleForm.get('url')?.errors?.['pattern']">Invalid URL format.</small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input id="title" formControlName="title" type="text" required />
+      <label for="title">Title</label>
+      <div *ngIf="articleForm.get('title')?.invalid && articleForm.get('title')?.touched" class="error-messages">
+        <small>Title is required.</small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input id="topic" formControlName="topic" type="text" required />
+      <label for="topic">Topic</label>
+      <div *ngIf="articleForm.get('topic')?.invalid && articleForm.get('topic')?.touched" class="error-messages">
+        <small>Topic is required.</small>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="articleForm.invalid">Add Article</button>
+  </form>
+
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+</div>
