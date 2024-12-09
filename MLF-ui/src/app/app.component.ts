@@ -6,7 +6,7 @@ import {CodeInputModule} from "angular-code-input";
 import { HttpClientModule} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import {RouterModule, RouterOutlet} from "@angular/router";
-import {NavbarComponent} from "./modules/pages/navbar/navbar.component";
+import {NavbarComponent} from "./modules/article/components/navbar/navbar.component";
 
 
 @Component({

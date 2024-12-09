@@ -37,6 +37,9 @@ public class ArticleService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Article article = articleMapper.toArticle(request);
         article.setOwner(user);
+        if (article.getPriority() == null) {
+            article.setPriority(3);
+        }
         article.setCreatedAt(LocalDateTime.now());
         return articleRepository.save(article);
     }
@@ -104,4 +107,14 @@ public class ArticleService {
         }
         articleRepository.deleteAll(articles);
     }
+
+    public void updatePriorities(List<ArticlePriorityUpdateRequest> updates) {
+        for (ArticlePriorityUpdateRequest update : updates) {
+            Article article = articleRepository.findById(update.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Article not found with ID: " + update.getId()));
+            article.setPriority(update.getPriority());
+            articleRepository.save(article);
+        }
+    }
 }
+

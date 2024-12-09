@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {ArticlesService} from "../../../services/services/articles.service";
+import {ArticlesService} from "../../../../services/services/articles.service";
 import {Router} from "@angular/router";
-import {ArticleResponse} from "../../../services/models/article-response";
+import {ArticleResponse} from "../../../../services/models/article-response";
 import {NgForOf} from "@angular/common";
 
 @Component({

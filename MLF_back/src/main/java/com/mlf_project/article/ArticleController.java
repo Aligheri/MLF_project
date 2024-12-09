@@ -73,4 +73,11 @@ public class ArticleController {
         articleService.deleteArticlesByTopic(topic, authentication);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/update-priorities")
+    public ResponseEntity<Void> updateArticlePriorities(@RequestBody List<ArticlePriorityUpdateRequest> updates) {
+        articleService.updatePriorities(updates);
+        return ResponseEntity.ok().build();
+    }
+
 }

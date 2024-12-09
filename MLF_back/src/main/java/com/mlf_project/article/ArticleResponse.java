@@ -16,4 +16,5 @@ public class ArticleResponse {
     private String title;
     private String topic;
     private LocalDateTime createdAt;
+    private Integer priority;
 }

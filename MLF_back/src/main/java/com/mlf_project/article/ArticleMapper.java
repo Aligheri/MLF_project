@@ -12,6 +12,7 @@ public class ArticleMapper {
         article.setTitle(request.getTitle());
         article.setTopic(request.getTopic());
         article.setCreatedAt(LocalDateTime.now());
+        article.setPriority(request.getPriority());
         return article;
     }
 
@@ -21,7 +22,8 @@ public class ArticleMapper {
                 article.getUrl(),
                 article.getTitle(),
                 article.getTopic(),
-                article.getCreatedAt()
+                article.getCreatedAt(),
+                article.getPriority()
         );
     }
 

@@ -5,6 +5,7 @@ import {AuthenticationControllerService} from "../../services/services/authentic
 import {TokenService} from "../../services/token/token.service";
 import {FormsModule} from "@angular/forms";
 import {NgForOf, NgIf} from "@angular/common";
+import {AuthenticationResponse} from "../../services/models/authentication-response";
 
 @Component({
   selector: 'app-login',
@@ -35,12 +36,12 @@ export class LoginComponent {
     this.authService.loginUser({
       body: this.authRequest
     }).subscribe({
-      next: (responseBody) => {
+      next: (response: AuthenticationResponse) => {
         console.log('Received response...');
-        console.log('Parsed Body:', responseBody);
+        console.log('Parsed Body:', response);
 
-        let token: string | undefined = responseBody?.token;
-
+        // let token: string | undefined = responseBody?.token;
+        const token = response.token;
         if (token) {
           this.tokenService.token = token;
           console.log('Token found and stored.');

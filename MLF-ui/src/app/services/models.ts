@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export { ArticlePriorityUpdateRequest } from './models/article-priority-update-request';
 export { ArticleRequest } from './models/article-request';
 export { ArticleResponse } from './models/article-response';
 export { AuthenticationResponse } from './models/authentication-response';

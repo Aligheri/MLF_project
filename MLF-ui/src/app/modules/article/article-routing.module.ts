@@ -1,9 +1,10 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {HomeComponent} from "../pages/home/home.component";
-import {AboutComponent} from "../pages/about/about.component";
-import {ArticleListComponent} from "../pages/article-list/article-list.component";
-import {AddArticleComponentComponent} from "../pages/add-article-component/add-article-component.component";
+import {HomeComponent} from "./pages/home/home.component";
+import {AboutComponent} from "./pages/about/about.component";
+import {ArticleListComponent} from "./pages/article-list/article-list.component";
+import {AddArticleComponentComponent} from "./pages/add-article-component/add-article-component.component";
+import {ArticleTopicsPageComponent} from "./pages/article-topics-page/article-topics-page.component";
 
 
 export const articleRoutes: Routes = [
@@ -24,6 +25,10 @@ export const articleRoutes: Routes = [
       {
         path: 'add-article',
         component: AddArticleComponentComponent
+      },
+      {
+        path: 'my-articles-by-topic',
+        component: ArticleTopicsPageComponent
       },
 
     ]
