@@ -1,8 +1,6 @@
 package com.mlf_project.article;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,4 +25,9 @@ public class ArticleRequest {
     @NotNull(message = "Topic cannot be null")
     @NotEmpty(message = "Topic cannot be empty")
     private String topic;
+
+    @NotNull(message = "Priority cannot be null")
+    @Min(1)
+    @Max(5)
+    private Integer priority;
 }

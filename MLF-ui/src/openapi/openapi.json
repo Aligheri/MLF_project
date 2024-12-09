@@ -65,6 +65,32 @@
         }
       }
     },
+    "/articles/update-priorities": {
+      "post": {
+        "tags": [
+          "articles"
+        ],
+        "operationId": "updateArticlePriorities",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ArticlePriorityUpdateRequest"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/auth/register": {
       "post": {
         "tags": [
@@ -309,6 +335,7 @@
     "schemas": {
       "ArticleRequest": {
         "required": [
+          "priority",
           "title",
           "topic",
           "url"
@@ -324,6 +351,12 @@
           },
           "topic": {
             "type": "string"
+          },
+          "priority": {
+            "maximum": 5,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -346,6 +379,28 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ArticlePriorityUpdateRequest": {
+        "required": [
+          "priority"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "priority": {
+            "maximum": 5,
+            "minimum": 1,
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

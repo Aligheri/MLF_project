@@ -37,7 +37,8 @@ public class RefreshTokenService {
 
     public RefreshToken createRefreshToken(Long userId) {
         RefreshToken refreshToken = new RefreshToken();
-
+        Optional<RefreshToken> existingToken = refreshTokenRepository.findByUserId(userId);
+        existingToken.ifPresent(refreshTokenRepository::delete);
         refreshToken.setUser(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
         refreshToken.setExpiresAt(Instant.now().plusMillis(refreshExpirationTime));
         refreshToken.setToken(UUID.randomUUID().toString());

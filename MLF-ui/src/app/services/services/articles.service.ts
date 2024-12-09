@@ -22,6 +22,8 @@ import { getArticles } from '../fn/articles/get-articles';
 import { GetArticles$Params } from '../fn/articles/get-articles';
 import { getArticlesGroupedByTopic } from '../fn/articles/get-articles-grouped-by-topic';
 import { GetArticlesGroupedByTopic$Params } from '../fn/articles/get-articles-grouped-by-topic';
+import { updateArticlePriorities } from '../fn/articles/update-article-priorities';
+import { UpdateArticlePriorities$Params } from '../fn/articles/update-article-priorities';
 
 @Injectable({ providedIn: 'root' })
 export class ArticlesService extends BaseService {
@@ -76,6 +78,31 @@ export class ArticlesService extends BaseService {
   createArticle(params: CreateArticle$Params, context?: HttpContext): Observable<ArticleResponse> {
     return this.createArticle$Response(params, context).pipe(
       map((r: StrictHttpResponse<ArticleResponse>): ArticleResponse => r.body)
+    );
+  }
+
+  /** Path part for operation `updateArticlePriorities()` */
+  static readonly UpdateArticlePrioritiesPath = '/articles/update-priorities';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `updateArticlePriorities()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateArticlePriorities$Response(params: UpdateArticlePriorities$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+    return updateArticlePriorities(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `updateArticlePriorities$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  updateArticlePriorities(params: UpdateArticlePriorities$Params, context?: HttpContext): Observable<void> {
+    return this.updateArticlePriorities$Response(params, context).pipe(
+      map((r: StrictHttpResponse<void>): void => r.body)
     );
   }
 

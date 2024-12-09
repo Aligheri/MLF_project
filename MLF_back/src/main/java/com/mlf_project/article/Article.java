@@ -24,6 +24,8 @@ public class Article {
     private String topic;
     private LocalDateTime createdAt;
     private boolean archived = false;
+    @Column(nullable = false, columnDefinition = "int default 3")
+    private Integer priority;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)

@@ -29,7 +29,6 @@ export class RegisterComponent {
   }
   errorMsg: Array<string> = [];
 
-
   register() {
     this.errorMsg = [];
     this.authService.registerUser({

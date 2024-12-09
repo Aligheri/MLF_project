@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {ArticlesService} from "../../../services/services/articles.service";
+import {ArticlesService} from "../../../../services/services/articles.service";
 import {FormBuilder, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {NgIf} from "@angular/common";
 
@@ -22,7 +22,8 @@ export class AddArticleComponentComponent {
     this.articleForm = this.fb.group({
       url: [''],
       title: [''],
-      topic: ['']
+      topic: [''],
+      priority: [1]
     });
   }
 
@@ -35,7 +36,8 @@ export class AddArticleComponentComponent {
         body: {
           url: formData.url,
           title: formData.title,
-          topic: formData.topic
+          topic: formData.topic,
+          priority: formData.priority
         }
       };
 
