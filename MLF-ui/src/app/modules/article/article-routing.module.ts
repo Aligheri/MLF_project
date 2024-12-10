@@ -5,6 +5,7 @@ import {AboutComponent} from "./pages/about/about.component";
 import {ArticleListComponent} from "./pages/article-list/article-list.component";
 import {AddArticleComponentComponent} from "./pages/add-article-component/add-article-component.component";
 import {ArticleTopicsPageComponent} from "./pages/article-topics-page/article-topics-page.component";
+import {ArticleVisualizationComponent} from "./pages/article-visualization/article-visualization.component";
 
 
 export const articleRoutes: Routes = [
@@ -30,7 +31,10 @@ export const articleRoutes: Routes = [
         path: 'my-articles-by-topic',
         component: ArticleTopicsPageComponent
       },
-
+      {
+        path: 'visualize-by-topic',
+        component: ArticleVisualizationComponent
+      },
     ]
   }
 ];

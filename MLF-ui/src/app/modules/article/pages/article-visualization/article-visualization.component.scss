@@ -1,0 +1,56 @@
+.graph-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+
+  // Анимация при изменении размера
+  transition: all 0.3s ease-in-out;
+}
+
+// Стили для узлов
+node {
+  circle {
+    fill: #5aa454; // Зеленый цвет узлов
+    stroke: #3f843c;
+    stroke-width: 2px;
+    transition: fill 0.3s;
+
+    &:hover {
+      fill: #3f843c; // Темно-зеленый при наведении
+    }
+  }
+
+  text {
+    font-size: 12px;
+    font-weight: bold;
+    fill: #333; // Цвет текста
+    pointer-events: none; // Чтобы текст не перехватывал клики
+  }
+}
+
+// Стили для ссылок
+link {
+  line {
+    stroke: #c7b42c; // Желтый цвет линий
+    stroke-width: 2px;
+    transition: stroke 0.3s;
+
+    &:hover {
+      stroke: #a68b1c; // Темно-желтый при наведении
+    }
+  }
+}
+
+// Адаптивность для небольших экранов
+@media (max-width: 768px) {
+  .graph-container {
+    width: 100%;
+    height: 400px;
+  }
+}
