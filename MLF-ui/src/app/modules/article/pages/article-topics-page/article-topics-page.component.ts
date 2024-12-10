@@ -3,6 +3,7 @@ import {NgForOf, NgIf} from "@angular/common";
 import {ArticlesService} from "../../../../services/services/articles.service";
 import {ArticleResponse} from "../../../../services/models/article-response";
 import {FormsModule} from "@angular/forms";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-article-topics-page',
@@ -15,11 +16,12 @@ import {FormsModule} from "@angular/forms";
   templateUrl: './article-topics-page.component.html',
   styleUrl: './article-topics-page.component.scss'
 })
-export class ArticleTopicsPageComponent implements OnInit{
+export class ArticleTopicsPageComponent implements OnInit {
   topics: { [p: string]: Array<ArticleResponse> } = {};
   topicsArray: { name: string; articles: Array<ArticleResponse> }[] = [];
 
-  constructor(private articleService: ArticlesService) {}
+  constructor(private articleService: ArticlesService, private router: Router) {
+  }
 
   ngOnInit(): void {
     this.articleService.getArticlesGroupedByTopic().subscribe((data) => {
@@ -53,8 +55,6 @@ export class ArticleTopicsPageComponent implements OnInit{
     });
   }
 
-
-
   // Проверка, что все статьи имеют приоритет
   allArticlesHavePriorities(articles: Array<ArticleResponse>): boolean {
     return articles.every((article) => article.priority !== undefined && article.priority > 0);
@@ -63,7 +63,8 @@ export class ArticleTopicsPageComponent implements OnInit{
   // Визуализация выбранной темы
   visualizeTopic(topicName: string): void {
     console.log(`Визуализация темы: ${topicName}`);
-    // Здесь будет логика перехода на страницу визуализации.
+    this.router.navigate(['article/visualize-by-topic']);
+
   }
 
 }
