@@ -1,11 +1,5 @@
-<div class="graph-container">
-  <ngx-graph
-    [view]="view"
-    [nodes]="nodes"
-    [links]="links"
-    [layout]="'dagre'"
-    [autoZoom]="true"
-    [autoCenter]="true"
-    (select)="onNodeSelect($event)">
-  </ngx-graph>
+<div class="visualization-container">
+  <div id="graph-container"></div>
+
+  <button (click)="ngOnInit()">Обновить граф</button>
 </div>
