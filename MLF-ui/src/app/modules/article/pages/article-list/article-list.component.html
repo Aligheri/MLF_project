@@ -4,9 +4,16 @@
   <div *ngFor="let article of articleResponse" class="article-item">
     <h3 class="article-title">{{ article.title }}</h3>
     <p class="article-topic">{{ article.topic }}</p>
-    <a [href]="article.url" target="_blank" class="btn btn-primary">
-      <i class="fas fa-book"></i> Read on..
-    </a>
+    <div class="d-flex gap-2">
+
+      <a [href]="article.url" target="_blank" class="btn btn-primary">
+        <i class="fas fa-book"></i> Read on..
+      </a>
+
+      <button class="btn btn-danger" (click)="archiveArticle(article.id)">
+        <i class="fas fa-archive"></i> Archive article
+      </button>
+
+    </div>
   </div>
 </div>
-
