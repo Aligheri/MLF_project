@@ -1,0 +1,9 @@
+<h3>Archived Articles</h3>
+<hr/>
+<div *ngFor="let article of archivedArticles" class="article-item">
+  <h3 class="article-title">{{ article.title }}</h3>
+  <p class="article-topic">{{ article.topic }}</p>
+  <a [href]="article.url" target="_blank" class="btn btn-secondary">
+    <i class="fas fa-book"></i> Read on..
+  </a>
+</div>

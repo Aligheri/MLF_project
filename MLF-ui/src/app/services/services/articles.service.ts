@@ -56,6 +56,10 @@ export class ArticlesService extends BaseService {
     );
   }
 
+  getArchivedArticles(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.rootUrl}/articles/archived`);
+  }
+
   /** Path part for operation `createArticle()` */
   static readonly CreateArticlePath = '/articles';
 

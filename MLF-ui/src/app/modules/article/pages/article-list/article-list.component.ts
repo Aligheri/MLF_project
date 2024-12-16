@@ -15,6 +15,8 @@ import {NgForOf} from "@angular/common";
 })
 export class ArticleListComponent implements OnInit {
   articleResponse: ArticleResponse[] = [];
+  articles: any[] = [];
+
 
   constructor(private articleService: ArticlesService,
               private router: Router) {
@@ -32,4 +34,32 @@ export class ArticleListComponent implements OnInit {
         }
       });
   }
+  archiveArticle(articleId: number | string | undefined): void {
+    if (!articleId) {
+      console.error('Error: article ID is missing or invalid');
+      return;
+    }
+
+    // Явное преобразование в число
+    const longId = Number(articleId);
+
+    if (isNaN(longId)) {
+      console.error('Error: Invalid article ID (not a number)');
+      return;
+    }
+
+    const params = { id: longId };
+
+    this.articleService.archiveArticle(params).subscribe({
+      next: () => {
+        console.log(`Article ${longId} archived successfully`);
+        this.articleResponse = this.articleResponse.filter(article => article.id !== longId);
+        this.router.navigate(['article/archived-articles']);
+      },
+      error: (err) => console.error('Error archiving article:', err)
+    });
+  }
+
+
+
 }
