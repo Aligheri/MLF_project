@@ -18,6 +18,8 @@ import { deleteArticle } from '../fn/articles/delete-article';
 import { DeleteArticle$Params } from '../fn/articles/delete-article';
 import { deleteArticlesByTopic } from '../fn/articles/delete-articles-by-topic';
 import { DeleteArticlesByTopic$Params } from '../fn/articles/delete-articles-by-topic';
+import { getArchivedArticles } from '../fn/articles/get-archived-articles';
+import { GetArchivedArticles$Params } from '../fn/articles/get-archived-articles';
 import { getArticles } from '../fn/articles/get-articles';
 import { GetArticles$Params } from '../fn/articles/get-articles';
 import { getArticlesGroupedByTopic } from '../fn/articles/get-articles-grouped-by-topic';
@@ -54,10 +56,6 @@ export class ArticlesService extends BaseService {
     return this.archiveArticle$Response(params, context).pipe(
       map((r: StrictHttpResponse<void>): void => r.body)
     );
-  }
-
-  getArchivedArticles(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.rootUrl}/articles/archived`);
   }
 
   /** Path part for operation `createArticle()` */
@@ -165,6 +163,31 @@ export class ArticlesService extends BaseService {
 }>): {
 [key: string]: Array<ArticleResponse>;
 } => r.body)
+    );
+  }
+
+  /** Path part for operation `getArchivedArticles()` */
+  static readonly GetArchivedArticlesPath = '/articles/my-archived-articles';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getArchivedArticles()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getArchivedArticles$Response(params?: GetArchivedArticles$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<ArticleResponse>>> {
+    return getArchivedArticles(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getArchivedArticles$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getArchivedArticles(params?: GetArchivedArticles$Params, context?: HttpContext): Observable<Array<ArticleResponse>> {
+    return this.getArchivedArticles$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Array<ArticleResponse>>): Array<ArticleResponse> => r.body)
     );
   }
 

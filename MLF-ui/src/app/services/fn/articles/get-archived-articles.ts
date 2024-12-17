@@ -6,16 +6,14 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { MessageResponse } from '../../models/message-response';
+import { ArticleResponse } from '../../models/article-response';
 
-export interface Logout$Params {
-  Authorization: string;
+export interface GetArchivedArticles$Params {
 }
 
-export function logout(http: HttpClient, rootUrl: string, params: Logout$Params, context?: HttpContext): Observable<StrictHttpResponse<MessageResponse>> {
-  const rb = new RequestBuilder(rootUrl, logout.PATH, 'post');
+export function getArchivedArticles(http: HttpClient, rootUrl: string, params?: GetArchivedArticles$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<ArticleResponse>>> {
+  const rb = new RequestBuilder(rootUrl, getArchivedArticles.PATH, 'get');
   if (params) {
-    rb.header('Authorization', params.Authorization, {});
   }
 
   return http.request(
@@ -23,9 +21,9 @@ export function logout(http: HttpClient, rootUrl: string, params: Logout$Params,
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<MessageResponse>;
+      return r as StrictHttpResponse<Array<ArticleResponse>>;
     })
   );
 }
 
-logout.PATH = '/api/auth/logout';
+getArchivedArticles.PATH = '/articles/my-archived-articles';

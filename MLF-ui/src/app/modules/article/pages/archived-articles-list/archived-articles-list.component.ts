@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ArticlesService} from "../../../../services/services/articles.service";
 import {NgForOf} from "@angular/common";
 
@@ -11,7 +11,7 @@ import {NgForOf} from "@angular/common";
   templateUrl: './archived-articles-list.component.html',
   styleUrl: './archived-articles-list.component.scss'
 })
-export class ArchivedArticlesListComponent {
+export class ArchivedArticlesListComponent implements OnInit{
   archivedArticles: any[] = [];
 
   constructor(private articleService: ArticlesService) {}
