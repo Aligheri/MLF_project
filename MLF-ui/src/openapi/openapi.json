@@ -260,6 +260,29 @@
         }
       }
     },
+    "/articles/my-archived-articles": {
+      "get": {
+        "tags": [
+          "articles"
+        ],
+        "operationId": "getArchivedArticles",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArticleResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/activate-account": {
       "get": {
         "tags": [

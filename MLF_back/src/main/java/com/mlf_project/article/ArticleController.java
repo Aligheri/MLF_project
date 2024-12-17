@@ -67,6 +67,14 @@ public class ArticleController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/my-archived-articles")
+    public ResponseEntity<List<ArticleResponse>> getArchivedArticles(Authentication authentication) {
+        List<ArticleResponse> articles = articleService.getAllArchivedArticles(authentication).stream()
+                .map(articleMapper::toArticleResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(articles);
+    }
+
     //Tested
     @DeleteMapping("/delete-by-topic")
     public ResponseEntity<Void> deleteArticlesByTopic(@RequestParam String topic, Authentication authentication) {

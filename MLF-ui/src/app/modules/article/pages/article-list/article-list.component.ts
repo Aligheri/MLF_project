@@ -59,7 +59,4 @@ export class ArticleListComponent implements OnInit {
       error: (err) => console.error('Error archiving article:', err)
     });
   }
-
-
-
 }

@@ -116,5 +116,15 @@ public class ArticleService {
             articleRepository.save(article);
         }
     }
+
+    public List<Article> getAllArchivedArticles(Authentication connectedUser) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<Article> archivedArticles = articleRepository.findAll(ArticleSpecification.withOwnerIdAndArchived(user.getId(), true));
+
+        return archivedArticles;
+    }
 }
 
