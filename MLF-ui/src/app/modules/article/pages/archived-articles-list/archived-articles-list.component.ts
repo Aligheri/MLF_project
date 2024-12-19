@@ -28,5 +28,4 @@ export class ArchivedArticlesListComponent implements OnInit{
       error: (err) => console.error('Error fetching archived articles', err)
     });
   }
-
 }

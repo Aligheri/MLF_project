@@ -13,6 +13,13 @@
       <button class="btn btn-danger" (click)="archiveArticle(article.id)">
         <i class="fas fa-archive"></i> Archive article
       </button>
+      <button
+        (click)="deleteArticle(article.id)"
+        class="btn btn-danger"
+        title="Delete this article"
+      >
+        Delete
+      </button>
 
     </div>
   </div>
