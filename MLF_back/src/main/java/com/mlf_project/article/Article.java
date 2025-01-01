@@ -26,7 +26,6 @@ public class Article {
     private boolean archived = false;
     @Column(nullable = false, columnDefinition = "int default 3")
     private Integer priority;
-
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;

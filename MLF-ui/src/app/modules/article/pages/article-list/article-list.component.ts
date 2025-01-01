@@ -2,13 +2,18 @@ import {Component, OnInit} from '@angular/core';
 import {ArticlesService} from "../../../../services/services/articles.service";
 import {Router} from "@angular/router";
 import {ArticleResponse} from "../../../../services/models/article-response";
-import {NgForOf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
+import {BubbleChartModule, Color, NgxChartsModule} from "@swimlane/ngx-charts";
+
 
 @Component({
   selector: 'app-article-list',
   standalone: true,
   imports: [
-    NgForOf
+    NgForOf,
+    BubbleChartModule,
+    NgIf,
+    NgxChartsModule
   ],
   templateUrl: './article-list.component.html',
   styleUrl: './article-list.component.scss'
@@ -34,29 +39,45 @@ export class ArticleListComponent implements OnInit {
         }
       });
   }
-  archiveArticle(articleId: number | string | undefined): void {
+
+  archiveArticle(articleId: number | undefined): void {
     if (!articleId) {
       console.error('Error: article ID is missing or invalid');
       return;
     }
 
-    // Явное преобразование в число
-    const longId = Number(articleId);
-
-    if (isNaN(longId)) {
-      console.error('Error: Invalid article ID (not a number)');
-      return;
-    }
-
-    const params = { id: longId };
+    const params = {id: articleId};
 
     this.articleService.archiveArticle(params).subscribe({
       next: () => {
-        console.log(`Article ${longId} archived successfully`);
-        this.articleResponse = this.articleResponse.filter(article => article.id !== longId);
+        console.log(`Article ${articleId} archived successfully`);
+
+        // Удаляем статью из текущего списка articleResponse
+        this.articleResponse = this.articleResponse.filter(article => article.id !== articleId);
+
+        // Перенаправляем пользователя на страницу 'Archived Articles'
         this.router.navigate(['article/archived-articles']);
       },
       error: (err) => console.error('Error archiving article:', err)
+    });
+  }
+
+  deleteArticle(articleId: number | undefined): void {
+    if (!articleId) {
+      console.error('Error: article ID is missing or invalid');
+      return;
+    }
+
+    const params = {id: articleId};
+
+    this.articleService.deleteArticle(params).subscribe({
+      next: () => {
+        console.log(`Article ${params} deleted successfully`);
+        this.findAllArticles()
+      },
+      error: (err) => {
+        console.error('Error deleting article:', err);
+      },
     });
   }
 }
