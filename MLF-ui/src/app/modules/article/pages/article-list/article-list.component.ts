@@ -2,14 +2,18 @@ import {Component, OnInit} from '@angular/core';
 import {ArticlesService} from "../../../../services/services/articles.service";
 import {Router} from "@angular/router";
 import {ArticleResponse} from "../../../../services/models/article-response";
-import {NgForOf} from "@angular/common";
-import {deleteArticle} from "../../../../services/fn/articles/delete-article";
+import {NgForOf, NgIf} from "@angular/common";
+import {BubbleChartModule, Color, NgxChartsModule} from "@swimlane/ngx-charts";
+
 
 @Component({
   selector: 'app-article-list',
   standalone: true,
   imports: [
-    NgForOf
+    NgForOf,
+    BubbleChartModule,
+    NgIf,
+    NgxChartsModule
   ],
   templateUrl: './article-list.component.html',
   styleUrl: './article-list.component.scss'

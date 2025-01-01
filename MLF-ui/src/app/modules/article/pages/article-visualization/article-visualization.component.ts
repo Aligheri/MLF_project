@@ -10,10 +10,8 @@ import * as d3 from 'd3';
   styleUrls: ['./article-visualization.component.scss']
 })
 export class ArticleVisualizationComponent implements OnInit {
-  private svg: any;
   private width: number;
   private height: number;
-
 
   constructor(private articleService: ArticlesService, private elementRef: ElementRef) {
     this.width = window.innerWidth;
@@ -27,102 +25,141 @@ export class ArticleVisualizationComponent implements OnInit {
   loadGraph(): void {
     this.articleService.getArticlesGroupedByTopic().subscribe((data) => {
       this.createGraph(data);
-      console.log(data);
     });
   }
-
-
 
   createGraph(data: { [key: string]: ArticleResponse[] }): void {
-    // d3.select(this.elementRef.nativeElement).select('svg').remove();
+    interface TreeNode {
+      name: string;
+      children?: TreeNode[];
+    }
 
-    // this.svg = d3.select(this.elementRef.nativeElement)
-    this.svg = d3.select('#graph-container')
+    // Формируем дерево с топиками
+    const root: TreeNode = {
+      name: 'Learning Path',
+      children: Object.keys(data).map((topicName) => ({
+        name: topicName,
+      }))
+    };
+
+    this.drawTree(root, data);
+  }
+
+  drawTree(data: any, articlesData: { [key: string]: ArticleResponse[] }): void {
+    const margin = { top: 50, right: 120, bottom: 50, left: 120 };
+    const width = this.width - margin.left - margin.right;
+    const height = this.height - margin.top - margin.bottom;
+
+    const svg = d3
+      .select('#graph-container')
       .append('svg')
       .attr('width', this.width)
-      .attr('height', this.height);
+      .attr('height', this.height)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const nodes: any[] = [];
-    const links: any[] = [];
-    let nodeId = 57;
+    const root = d3.hierarchy(data);
 
-    Object.keys(data).forEach((topicName, index) => {
-      const parentNodeId = `topic-${index}`;
-      nodes.push({id: parentNodeId, label: topicName, group: 'topic'});
+    const treeLayout = d3.tree().size([width, height]);
+    treeLayout(root);
 
-      data[topicName].forEach(article => {
-        const childNodeId = `article-${nodeId++}`;
-        nodes.push({id: childNodeId, label: article.title, group: 'article'});
-        links.push({source: parentNodeId, target: childNodeId});
-      });
-    });
-
-    const simulation = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links).id((d: any) => d.id).distance(100))
-      .force('charge', d3.forceManyBody().strength(-200))
-      .force('center', d3.forceCenter(this.width / 2, this.height / 2));
-
-    const link = this.svg.append('g')
-      .attr('class', 'links')
-      .selectAll('line')
-      .data(links)
+    // Links (соединительные линии)
+    svg.selectAll('.link')
+      .data(root.links())
       .enter()
-      .append('line')
+      .append('path')
+      .attr('class', 'link')
+      .attr('fill', 'none')
+      .attr('stroke', '#ccc')
       .attr('stroke-width', 2)
-      .attr('stroke', '#999');
-
-    const node = this.svg.append('g')
-      .attr('class', 'nodes')
-      .selectAll('circle')
-      .data(nodes)
-      .enter()
-      .append('circle')
-      .attr('r', 10)
-      .attr('fill', (d: any) => d.group === 'topic' ? '#FF6347' : '#1E90FF')
-      .call(d3.drag()
-        .on('start', (event, d: any) => this.dragStarted(event, d, simulation))
-        .on('drag', (event, d: any) => this.dragged(event, d))
-        .on('end', (event, d: any) => this.dragEnded(event, d, simulation))
+      .attr('d', (d: any) =>
+        `M${d.source.x},${d.source.y}C${d.source.x},${(d.source.y + d.target.y) / 2} ${d.target.x},${(d.source.y + d.target.y) / 2} ${d.target.x},${d.target.y}`
       );
 
-    const labels = this.svg.append('g')
-      .attr('class', 'labels')
-      .selectAll('text')
-      .data(nodes)
+    // Nodes (узлы дерева)
+    const node = svg.selectAll('.node')
+      .data(root.descendants())
       .enter()
-      .append('text')
-      .attr('dx', 12)
-      .attr('dy', '.35em')
-      .text((d: any) => d.label);
+      .append('g')
+      .attr('class', 'node')
+      .attr('transform', (d: any) => `translate(${d.x},${d.y})`)
+      .on('click', (event: MouseEvent, d: any) => this.onTopicClick(d, svg, articlesData));
 
-    simulation.on('tick', () => {
-      link.attr('x1', (d: any) => d.source.x)
-        .attr('y1', (d: any) => d.source.y)
-        .attr('x2', (d: any) => d.target.x)
-        .attr('y2', (d: any) => d.target.y);
+    node.append('circle')
+      .attr('r', 8)
+      .attr('fill', '#FF6347'); // Топики отображаются красным цветом
 
-      node.attr('cx', (d: any) => d.x)
-        .attr('cy', (d: any) => d.y);
-
-      labels.attr('x', (d: any) => d.x)
-        .attr('y', (d: any) => d.y);
-    });
+    node.append('text')
+      .attr('dy', 3)
+      .attr('x', 12)
+      .style('text-anchor', 'start')
+      .text((d: any) => d.data.name)
+      .style('font-size', '14px');
   }
+  onTopicClick(d: any, svg: any, articlesData: { [key: string]: ArticleResponse[] }): void {
+    // Удаляем уже существующие статьи для других топиков
+    svg.selectAll('.article-circle').remove();
 
-  dragStarted(event: any, d: any, simulation: any): void {
-    if (!event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }
+    // Проверяем, что это топик и он существует в данных
+    const topicName = d.data.name;
+    if (articlesData[topicName]) {
+      const articles = articlesData[topicName];
 
-  dragged(event: any, d: any): void {
-    d.fx = event.x;
-    d.fy = event.y;
-  }
+      let radius = 150; // Изначальный радиус круга
+      const angleStep = (2 * Math.PI) / articles.length;
 
-  dragEnded(event: any, d: any, simulation: any): void {
-    if (!event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
+      // Устанавливаем границы экрана
+      const screenWidth = this.width;
+      const screenHeight = this.height;
+      const margin = 20; // Отступы от границ экрана
+
+      articles.forEach((article, index) => {
+        const angle = angleStep * index; // Угол для размещения статьи
+
+
+        let targetX = d.x + radius * Math.cos(angle);
+        let targetY = d.y + radius * Math.sin(angle);
+
+
+        while (
+          targetX < margin || targetX > screenWidth - margin ||
+          targetY < margin || targetY > screenHeight - margin
+          ) {
+          radius -= 10;
+          targetX = d.x + radius * Math.cos(angle);
+          targetY = d.y + radius * Math.sin(angle);
+        }
+
+
+        const articleGroup = svg.append('g')
+          .attr('class', 'article-circle')
+          .attr('transform', `translate(${d.x},${d.y})`)
+          .style('opacity', 0);
+
+
+        articleGroup.append('circle')
+          .attr('r', 6)
+          .attr('fill', '#4682B4');
+
+
+        articleGroup.append('a')
+          .attr('xlink:href', article.url)
+          .attr('target', '_blank')
+          .append('text')
+          .attr('x', 10)
+          .attr('y', 3)
+          .text(article.title)
+          .style('font-size', '12px')
+          .style('text-anchor', 'start')
+          .style('cursor', 'pointer')
+          .attr('fill', '#0000EE');
+
+        // Анимация появления
+        articleGroup.transition()
+          .duration(1000)
+          .attr('transform', `translate(${targetX},${targetY})`)
+          .style('opacity', 1);
+      });
+    }
   }
 }
