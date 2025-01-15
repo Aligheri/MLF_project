@@ -3,10 +3,12 @@ package com.mlf_project.topic;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -14,6 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TopicContoller {
     private final TopicService topicService;
+    private final TopicMapper topicMapper;
 
     @PostMapping("/{learningPathId}")
     public ResponseEntity<Topic> createOrUpdateTopic(
@@ -22,6 +25,16 @@ public class TopicContoller {
         Topic topic = topicService.createOrUpdateTopic(path, learningPathId);
         return ResponseEntity.status(HttpStatus.CREATED).body(topic);
     }
+
+    @GetMapping()
+    public ResponseEntity<List<TopicResponse>> getAllattachedTopics(Long learningPathId, Authentication connectedUser) {
+        List<TopicResponse> topics = topicService.getAllAttachedTopics(learningPathId, connectedUser)
+                .stream().map(topicMapper::toTopicResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(topics);
+    }
+
 
     @PostMapping("/assign-articles")
     public ResponseEntity<Void> assignArticlesToTopics(
