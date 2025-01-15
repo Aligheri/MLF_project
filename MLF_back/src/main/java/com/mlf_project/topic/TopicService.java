@@ -10,6 +10,7 @@ import com.mlf_project.repository.UserRepository;
 import com.mlf_project.security.services.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -68,12 +69,16 @@ public class TopicService {
         return parentTopic;
     }
     // TODO
-    public List<Topic> getAllAttachedTopics(Long learningPathId , Authentication connectedUser){
+    public List<Topic> getAllAttachedTopics(Long learningPathId, Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-      return topicRepository.getAllByLearningPathId(learningPathId, TopicSpecification.withOwnerId(user.getId()));
+        Specification<Topic> spec = Specification
+                .where(TopicSpecification.withOwnerId(user.getId()))
+                .and(TopicSpecification.withLearningPathId(learningPathId));
+
+        return topicRepository.findAll(spec);
     }
 
     @Transactional
