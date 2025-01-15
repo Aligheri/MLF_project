@@ -6,9 +6,10 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { Topic } from '../../models/topic';
 
 export interface DeleteArticlesByTopic$Params {
-  topic: string;
+  topic: Topic;
 }
 
 export function deleteArticlesByTopic(http: HttpClient, rootUrl: string, params: DeleteArticlesByTopic$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {

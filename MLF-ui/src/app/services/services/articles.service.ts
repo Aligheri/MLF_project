@@ -22,8 +22,6 @@ import { getArchivedArticles } from '../fn/articles/get-archived-articles';
 import { GetArchivedArticles$Params } from '../fn/articles/get-archived-articles';
 import { getArticles } from '../fn/articles/get-articles';
 import { GetArticles$Params } from '../fn/articles/get-articles';
-import { getArticlesGroupedByTopic } from '../fn/articles/get-articles-grouped-by-topic';
-import { GetArticlesGroupedByTopic$Params } from '../fn/articles/get-articles-grouped-by-topic';
 import { updateArticlePriorities } from '../fn/articles/update-article-priorities';
 import { UpdateArticlePriorities$Params } from '../fn/articles/update-article-priorities';
 
@@ -130,39 +128,6 @@ export class ArticlesService extends BaseService {
   getArticles(params?: GetArticles$Params, context?: HttpContext): Observable<Array<ArticleResponse>> {
     return this.getArticles$Response(params, context).pipe(
       map((r: StrictHttpResponse<Array<ArticleResponse>>): Array<ArticleResponse> => r.body)
-    );
-  }
-
-  /** Path part for operation `getArticlesGroupedByTopic()` */
-  static readonly GetArticlesGroupedByTopicPath = '/articles/my-articles-by-topic';
-
-  /**
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getArticlesGroupedByTopic()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getArticlesGroupedByTopic$Response(params?: GetArticlesGroupedByTopic$Params, context?: HttpContext): Observable<StrictHttpResponse<{
-[key: string]: Array<ArticleResponse>;
-}>> {
-    return getArticlesGroupedByTopic(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getArticlesGroupedByTopic$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getArticlesGroupedByTopic(params?: GetArticlesGroupedByTopic$Params, context?: HttpContext): Observable<{
-[key: string]: Array<ArticleResponse>;
-}> {
-    return this.getArticlesGroupedByTopic$Response(params, context).pipe(
-      map((r: StrictHttpResponse<{
-[key: string]: Array<ArticleResponse>;
-}>): {
-[key: string]: Array<ArticleResponse>;
-} => r.body)
     );
   }
 

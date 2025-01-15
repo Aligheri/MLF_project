@@ -1,9 +1,9 @@
 package com.mlf_project.article;
 
+import com.mlf_project.topic.Topic;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -20,15 +19,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class ArticleController {
-    private ArticleService articleService;
 
+    private final ArticleService articleService;
     private final ArticleMapper articleMapper;
 
-    @Autowired
-    public ArticleController(ArticleService articleService, ArticleMapper articleMapper) {
-        this.articleService = articleService;
-        this.articleMapper = articleMapper;
-    }
+
 
     //Tested
     @PostMapping
@@ -47,11 +42,11 @@ public class ArticleController {
     }
 
     //Tested
-    @GetMapping("/my-articles-by-topic")
-    public ResponseEntity<Map<String, List<ArticleResponse>>> getArticlesGroupedByTopic(Authentication authentication) {
-        Map<String, List<ArticleResponse>> articlesGroupedByTopic = articleService.getArticlesGroupedByTopic(authentication);
-        return ResponseEntity.ok(articlesGroupedByTopic);
-    }
+//    @GetMapping("/my-articles-by-topic")
+//    public ResponseEntity<Map<String, List<ArticleResponse>>> getArticlesGroupedByTopic(Authentication authentication) {
+//        Map<String, List<ArticleResponse>> articlesGroupedByTopic = articleService.getArticlesGroupedByTopic(authentication);
+//        return ResponseEntity.ok(articlesGroupedByTopic);
+//    }
 
     //Tested
     @DeleteMapping("/{id}")
@@ -77,7 +72,7 @@ public class ArticleController {
 
     //Tested
     @DeleteMapping("/delete-by-topic")
-    public ResponseEntity<Void> deleteArticlesByTopic(@RequestParam String topic, Authentication authentication) {
+    public ResponseEntity<Void> deleteArticlesByTopic(@RequestParam Topic topic, Authentication authentication) {
         articleService.deleteArticlesByTopic(topic, authentication);
         return ResponseEntity.noContent().build();
     }

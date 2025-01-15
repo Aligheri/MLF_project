@@ -14,7 +14,9 @@ public class ArticleResponse {
     private Long id;
     private String url;
     private String title;
-    private String topic;
+//    private String topic;
+    private Long topicId;
     private LocalDateTime createdAt;
     private Integer priority;
+
 }
