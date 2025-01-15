@@ -1,0 +1,156 @@
+.learning-path-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #333;
+
+  .form-container {
+    background: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+
+    h2 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+
+      &:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 15px;
+      font-size: 14px;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &.primary-btn {
+        background: #007bff;
+      }
+
+      &.danger-btn {
+        background: #dc3545;
+      }
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+  }
+
+  .learning-path-list {
+    h2 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .learning-path-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+
+      .card-input,
+      .card-textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+
+        &:focus {
+          border-color: #007bff;
+          outline: none;
+        }
+      }
+
+      .topics-container {
+        margin-top: 10px;
+
+        h3 {
+          font-size: 16px;
+          margin-bottom: 10px;
+        }
+
+        ul {
+          list-style-type: none;
+          padding: 0;
+          margin: 0;
+
+          li {
+            padding: 5px 0;
+            font-size: 14px;
+          }
+        }
+
+        .form-input {
+          margin-top: 10px;
+          color: #aaa;
+          cursor: not-allowed;
+        }
+      }
+
+      .actions {
+        text-align: right;
+
+        .btn {
+          margin-left: 5px;
+        }
+        .topics-container {
+          margin-top: 10px;
+
+          h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+          }
+
+          ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+              padding: 5px 0;
+              font-size: 14px;
+            }
+          }
+
+          .form-input {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            width: calc(100% - 110px); // Ensure input fits alongside button
+            display: inline-block;
+          }
+
+          .btn.primary-btn {
+            display: inline-block;
+            margin-left: 10px;
+          }
+        }
+      }
+    }
+  }
+}
