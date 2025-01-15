@@ -3,9 +3,15 @@ package com.mlf_project.topic;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mlf_project.article.Article;
 import com.mlf_project.article.ArticleRepository;
+import com.mlf_project.entities.User;
 import com.mlf_project.learningPath.LearningPath;
 import com.mlf_project.learningPath.LearningPathRepository;
+import com.mlf_project.repository.UserRepository;
+import com.mlf_project.security.services.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+@RequiredArgsConstructor
 @Service
 public class TopicService {
     private final TopicRepository topicRepository;
@@ -22,11 +28,8 @@ public class TopicService {
 
     private final LearningPathRepository learningPathRepository;
 
-    public TopicService(TopicRepository topicRepository, LearningPathRepository learningPathRepository,ArticleRepository articleRepository) {
-        this.topicRepository = topicRepository;
-        this.learningPathRepository = learningPathRepository;
-        this.articleRepository = articleRepository;
-    }
+    private final UserRepository userRepository;
+
 
     @Transactional
     public Topic createOrUpdateTopic(String path, Long learningPathId) {
@@ -34,7 +37,6 @@ public class TopicService {
             throw new IllegalArgumentException("Path cannot be null or empty");
         }
 
-        // Fetch the learning path
         LearningPath learningPath = learningPathRepository.findById(learningPathId)
                 .orElseThrow(() -> new IllegalArgumentException("LearningPath with ID " + learningPathId + " does not exist"));
 
@@ -48,25 +50,30 @@ public class TopicService {
         for (int i = 0; i < pathSegments.length; i++) {
             String currentSegment = pathSegments[i];
 
-            // Check if the topic exists under the current parent
+
             Topic topic = topicRepository.findByNameAndParentAndLearningPath(currentSegment, parentTopic, learningPath);
 
             if (topic == null) {
-                // If it's the first segment and a parent is required, throw an exception
                 if (i == 0 && pathSegments.length > 1) {
                     throw new IllegalArgumentException(
                             "Parent topic '" + currentSegment + "' does not exist for subtopic creation in this learning path");
                 }
-
-                // Create a new topic
                 topic = new Topic(currentSegment, learningPath, parentTopic);
                 topicRepository.save(topic);
             }
 
-            parentTopic = topic; // Set current topic as the parent for the next iteration
+            parentTopic = topic;
         }
 
-        return parentTopic; // Return the final topic (either existing or newly created)
+        return parentTopic;
+    }
+    // TODO
+    public List<Topic> getAllAttachedTopics(Long learningPathId , Authentication connectedUser){
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+      return topicRepository.getAllByLearningPathId(learningPathId, TopicSpecification.withOwnerId(user.getId()));
     }
 
     @Transactional
@@ -85,6 +92,7 @@ public class TopicService {
             articleRepository.saveAll(articles);
         }
     }
+
     public String getTopicTreeJson(Long learningPathId) {
         List<Topic> rootTopics = topicRepository.findByLearningPathIdAndParentIsNull(learningPathId);
         List<Map<String, Object>> tree = rootTopics.stream()
