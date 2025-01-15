@@ -6,14 +6,16 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { LearningPathResponse } from '../../models/learning-path-response';
+import { TopicResponse } from '../../models/topic-response';
 
-export interface GetAllLearningPaths$Params {
+export interface GetAllattachedTopics$Params {
+  learningPathId: number;
 }
 
-export function getAllLearningPaths(http: HttpClient, rootUrl: string, params?: GetAllLearningPaths$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<LearningPathResponse>>> {
-  const rb = new RequestBuilder(rootUrl, getAllLearningPaths.PATH, 'get');
+export function getAllattachedTopics(http: HttpClient, rootUrl: string, params: GetAllattachedTopics$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<TopicResponse>>> {
+  const rb = new RequestBuilder(rootUrl, getAllattachedTopics.PATH, 'get');
   if (params) {
+    rb.query('learningPathId', params.learningPathId, {});
   }
 
   return http.request(
@@ -21,9 +23,9 @@ export function getAllLearningPaths(http: HttpClient, rootUrl: string, params?: 
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<LearningPathResponse>>;
+      return r as StrictHttpResponse<Array<TopicResponse>>;
     })
   );
 }
 
-getAllLearningPaths.PATH = '/api/learning-paths';
+getAllattachedTopics.PATH = '/api/topics';

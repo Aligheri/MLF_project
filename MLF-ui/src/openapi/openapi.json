@@ -174,7 +174,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/LearningPath"
+                    "$ref": "#/components/schemas/LearningPathResponse"
                   }
                 }
               }
@@ -433,6 +433,40 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/ArticleResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/topics": {
+      "get": {
+        "tags": [
+          "topic-contoller"
+        ],
+        "operationId": "getAllattachedTopics",
+        "parameters": [
+          {
+            "name": "learningPathId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopicResponse"
                   }
                 }
               }
@@ -819,6 +853,9 @@
           },
           "title": {
             "type": "string"
+          },
+          "description": {
+            "type": "string"
           }
         }
       },
@@ -928,6 +965,40 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          }
+        }
+      },
+      "TopicResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "learningPathId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "childrenIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "articleIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
             }
           }
         }

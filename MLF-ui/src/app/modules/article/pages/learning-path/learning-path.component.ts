@@ -17,25 +17,29 @@ import {TopicContollerService} from "../../../../services/services/topic-contoll
 export class LearningPathComponent implements OnInit {
   newTopicPath: string = '';
   learningPaths: any[] = [];
+  topics:any[] = [];
   newLearningPath: any = {title: '', description: ''};
   expandedPathId: number | null = null;
 
 
   constructor(private learningPathService: LearningPathControllerService,
-              private topicService : TopicContollerService) {
+              private topicService: TopicContollerService) {
   }
 
   ngOnInit(): void {
     this.loadLearningPaths();
   }
 
-  private loadLearningPaths() {
-    this.learningPathService.getAllLearningPaths()
-      .subscribe({
-        next: (paths) => {
-          this.learningPaths = paths
-        }
-      });
+  loadLearningPaths(): void {
+    this.learningPathService.getAllLearningPaths().subscribe({
+      next: (paths) => {
+        this.learningPaths = paths.map((path) => ({
+          ...path,
+          topics: [],
+        }));
+      },
+      error: (error) => console.error('Error loading learning paths:', error),
+    });
   }
 
   toggleDescription(id: number): void {
@@ -109,6 +113,7 @@ export class LearningPathComponent implements OnInit {
       },
     });
   }
+
   //TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
   createTopicPath(learningPathId: number): void {
     if (this.newTopicPath.trim()) {
@@ -126,5 +131,16 @@ export class LearningPathComponent implements OnInit {
       });
     }
   }
-
+//Todo - not working
+  loadAllAttachedTopics(learningPathId: number) {
+    this.topicService.getAllattachedTopics({ learningPathId }).subscribe({
+      next: (response) => {
+        console.log('Loaded topics:', response); // Ensure this is not empty
+        this.topics = response;
+      },
+      error: (error) => {
+        console.error('Error loading topics:', error);
+      },
+    });
+  }
 }

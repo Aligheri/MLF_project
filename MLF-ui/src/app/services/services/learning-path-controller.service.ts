@@ -19,7 +19,6 @@ import { editLearningPathTitle } from '../fn/learning-path-controller/edit-learn
 import { EditLearningPathTitle$Params } from '../fn/learning-path-controller/edit-learning-path-title';
 import { getAllLearningPaths } from '../fn/learning-path-controller/get-all-learning-paths';
 import { GetAllLearningPaths$Params } from '../fn/learning-path-controller/get-all-learning-paths';
-import { LearningPath } from '../models/learning-path';
 import { LearningPathResponse } from '../models/learning-path-response';
 
 @Injectable({ providedIn: 'root' })
@@ -37,7 +36,7 @@ export class LearningPathControllerService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getAllLearningPaths$Response(params?: GetAllLearningPaths$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<LearningPath>>> {
+  getAllLearningPaths$Response(params?: GetAllLearningPaths$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<LearningPathResponse>>> {
     return getAllLearningPaths(this.http, this.rootUrl, params, context);
   }
 
@@ -47,9 +46,9 @@ export class LearningPathControllerService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  getAllLearningPaths(params?: GetAllLearningPaths$Params, context?: HttpContext): Observable<Array<LearningPath>> {
+  getAllLearningPaths(params?: GetAllLearningPaths$Params, context?: HttpContext): Observable<Array<LearningPathResponse>> {
     return this.getAllLearningPaths$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Array<LearningPath>>): Array<LearningPath> => r.body)
+      map((r: StrictHttpResponse<Array<LearningPathResponse>>): Array<LearningPathResponse> => r.body)
     );
   }
 

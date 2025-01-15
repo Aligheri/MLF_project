@@ -79,6 +79,7 @@
   <div class="learning-path-list">
     <h2>Learning Paths</h2>
     <div *ngFor="let path of learningPaths" class="learning-path-card">
+      <!-- Title and Description -->
       <input
         type="text"
         [(ngModel)]="path.title"
@@ -93,11 +94,20 @@
         (blur)="updateLearningPathDescription(path.id, path.description)"
       ></textarea>
 
+      <!-- Topics Section -->
       <div class="topics-container">
         <h3>Topics</h3>
+        <button
+          (click)="loadAllAttachedTopics(path.id)"
+          class="btn secondary-btn"
+        >
+          Load Topics
+        </button>
         <ul>
-          <li>Topic placeholder</li>
+          <li *ngFor="let topic of topics">{{ topic.name }}</li>
         </ul>
+
+        <!-- Add New Topic -->
         <input
           type="text"
           [(ngModel)]="newTopicPath"
@@ -107,10 +117,10 @@
         <button (click)="createTopicPath(path.id)" class="btn primary-btn">Add Topic Path</button>
       </div>
 
+      <!-- Actions Section -->
       <div class="actions">
         <button (click)="deleteLearningPath(path.id)" class="btn danger-btn">Delete</button>
       </div>
     </div>
   </div>
 </div>
-

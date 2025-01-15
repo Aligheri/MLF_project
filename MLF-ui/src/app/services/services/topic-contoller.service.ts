@@ -13,9 +13,12 @@ import { assignArticlesToTopics } from '../fn/topic-contoller/assign-articles-to
 import { AssignArticlesToTopics$Params } from '../fn/topic-contoller/assign-articles-to-topics';
 import { createOrUpdateTopic } from '../fn/topic-contoller/create-or-update-topic';
 import { CreateOrUpdateTopic$Params } from '../fn/topic-contoller/create-or-update-topic';
+import { getAllattachedTopics } from '../fn/topic-contoller/get-allattached-topics';
+import { GetAllattachedTopics$Params } from '../fn/topic-contoller/get-allattached-topics';
 import { getTopicTreeJson } from '../fn/topic-contoller/get-topic-tree-json';
 import { GetTopicTreeJson$Params } from '../fn/topic-contoller/get-topic-tree-json';
 import { Topic } from '../models/topic';
+import { TopicResponse } from '../models/topic-response';
 
 @Injectable({ providedIn: 'root' })
 export class TopicContollerService extends BaseService {
@@ -70,6 +73,31 @@ export class TopicContollerService extends BaseService {
   assignArticlesToTopics(params: AssignArticlesToTopics$Params, context?: HttpContext): Observable<void> {
     return this.assignArticlesToTopics$Response(params, context).pipe(
       map((r: StrictHttpResponse<void>): void => r.body)
+    );
+  }
+
+  /** Path part for operation `getAllattachedTopics()` */
+  static readonly GetAllattachedTopicsPath = '/api/topics';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getAllattachedTopics()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getAllattachedTopics$Response(params: GetAllattachedTopics$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<TopicResponse>>> {
+    return getAllattachedTopics(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getAllattachedTopics$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getAllattachedTopics(params: GetAllattachedTopics$Params, context?: HttpContext): Observable<Array<TopicResponse>> {
+    return this.getAllattachedTopics$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Array<TopicResponse>>): Array<TopicResponse> => r.body)
     );
   }
 

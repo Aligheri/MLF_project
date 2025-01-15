@@ -15,5 +15,6 @@ export { RefreshTokenResponse } from './models/refresh-token-response';
 export { RegisterRequest } from './models/register-request';
 export { Role } from './models/role';
 export { Topic } from './models/topic';
+export { TopicResponse } from './models/topic-response';
 export { User } from './models/user';
 export { UserStatus } from './models/user-status';
