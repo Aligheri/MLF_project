@@ -4,6 +4,8 @@ import com.mlf_project.entities.User;
 import com.mlf_project.exception.PermissionDeniedException;
 import com.mlf_project.repository.UserRepository;
 import com.mlf_project.security.services.UserDetailsImpl;
+import com.mlf_project.topic.Topic;
+import com.mlf_project.topic.TopicRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,27 +23,59 @@ public class ArticleService {
     private ArticleRepository articleRepository;
     private final ArticleMapper articleMapper;
     private final UserRepository userRepository;
+    private final TopicRepository topicRepository;
 
     @Autowired
-    public ArticleService(ArticleRepository articleRepository, ArticleMapper articleMapper, UserRepository userRepository) {
+    public ArticleService(ArticleRepository articleRepository, ArticleMapper articleMapper, UserRepository userRepository , TopicRepository topicRepository) {
         this.articleRepository = articleRepository;
         this.articleMapper = articleMapper;
         this.userRepository = userRepository;
+        this.topicRepository = topicRepository;
     }
 
+//    public Article saveArticle(ArticleRequest request, Authentication connectedUser) {
+//        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+//        User user = userRepository.findById(userDetails.getId())
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//        Article article = articleMapper.toArticle(request);
+//        article.setOwner(user);
+//        if (article.getPriority() == null) {
+//            article.setPriority(3);
+//        }
+//        article.setCreatedAt(LocalDateTime.now());
+//        return articleRepository.save(article);
+//    }
+
     public Article saveArticle(ArticleRequest request, Authentication connectedUser) {
+        // Retrieve the connected user
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Map the request to an Article entity
         Article article = articleMapper.toArticle(request);
         article.setOwner(user);
+
+        // Assign a default priority if none is provided
         if (article.getPriority() == null) {
             article.setPriority(3);
         }
+
+        // Set creation time
         article.setCreatedAt(LocalDateTime.now());
+
+        // Fetch the associated topic
+        if (request.getTopicId() != null) {
+            Topic topic = topicRepository.findById(request.getTopicId())
+                    .orElseThrow(() -> new EntityNotFoundException("Topic not found with ID: " + request.getTopicId()));
+            article.setTopic(topic);
+        } else {
+            throw new IllegalArgumentException("Article must be associated with a valid topic.");
+        }
+
+        // Save the article
         return articleRepository.save(article);
     }
-
 
     public List<Article> getArticles(Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
@@ -54,19 +86,19 @@ public class ArticleService {
     }
 
 
-    public Map<String, List<ArticleResponse>> getArticlesGroupedByTopic(Authentication connectedUser) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
-        User user = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        List<Article> articles = articleRepository.findAll(ArticleSpecification.withOwnerId(user.getId()));
-
-        return articles.stream()
-                .collect(Collectors.groupingBy(
-                        Article::getTopic,
-                        Collectors.mapping(articleMapper::toArticleResponse, Collectors.toList())
-                ));
-    }
+//    public Map<String, List<ArticleResponse>> getArticlesGroupedByTopic(Authentication connectedUser) {
+//        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+//        User user = userRepository.findById(userDetails.getId())
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//
+//        List<Article> articles = articleRepository.findAll(ArticleSpecification.withOwnerId(user.getId()));
+//
+//        return articles.stream()
+//                .collect(Collectors.groupingBy(
+//                        Article::getTopic,
+//                        Collectors.mapping(articleMapper::toArticleResponse, Collectors.toList())
+//                ));
+//    }
 
     public void deleteArticle(Long id, Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
@@ -96,7 +128,7 @@ public class ArticleService {
         articleRepository.save(article);
     }
 
-    public void deleteArticlesByTopic(String topic, Authentication connectedUser) {
+    public void deleteArticlesByTopic(Topic topic, Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));

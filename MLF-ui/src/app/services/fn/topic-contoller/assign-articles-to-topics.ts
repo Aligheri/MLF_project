@@ -6,16 +6,17 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { Topic } from '../../models/topic';
 
-export interface DeleteArticlesByTopic$Params {
-  topic: Topic;
+export interface AssignArticlesToTopics$Params {
+      body: {
+[key: string]: Array<number>;
+}
 }
 
-export function deleteArticlesByTopic(http: HttpClient, rootUrl: string, params: DeleteArticlesByTopic$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-  const rb = new RequestBuilder(rootUrl, deleteArticlesByTopic.PATH, 'delete');
+export function assignArticlesToTopics(http: HttpClient, rootUrl: string, params: AssignArticlesToTopics$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
+  const rb = new RequestBuilder(rootUrl, assignArticlesToTopics.PATH, 'post');
   if (params) {
-    rb.query('topic', params.topic, {});
+    rb.body(params.body, 'application/json');
   }
 
   return http.request(
@@ -28,4 +29,4 @@ export function deleteArticlesByTopic(http: HttpClient, rootUrl: string, params:
   );
 }
 
-deleteArticlesByTopic.PATH = '/articles/delete-by-topic';
+assignArticlesToTopics.PATH = '/api/topics/assign-articles';

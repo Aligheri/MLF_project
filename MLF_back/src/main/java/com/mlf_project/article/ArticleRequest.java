@@ -24,10 +24,13 @@ public class ArticleRequest {
 
     @NotNull(message = "Topic cannot be null")
     @NotEmpty(message = "Topic cannot be empty")
-    private String topic;
+    private Long topicId;
+
+    //    private String topic;
 
     @NotNull(message = "Priority cannot be null")
     @Min(1)
     @Max(5)
     private Integer priority;
+
 }

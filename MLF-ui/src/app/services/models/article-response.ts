@@ -5,6 +5,6 @@ export interface ArticleResponse {
   id?: number;
   priority?: number;
   title?: string;
-  topic?: string;
+  topicId?: number;
   url?: string;
 }

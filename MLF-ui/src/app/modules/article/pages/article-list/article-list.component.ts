@@ -3,9 +3,7 @@ import {ArticlesService} from "../../../../services/services/articles.service";
 import {Router} from "@angular/router";
 import {ArticleResponse} from "../../../../services/models/article-response";
 import {NgForOf, NgIf} from "@angular/common";
-import {BubbleChartModule, Color, NgxChartsModule} from "@swimlane/ngx-charts";
-
-
+import {BubbleChartModule,  NgxChartsModule} from "@swimlane/ngx-charts";
 @Component({
   selector: 'app-article-list',
   standalone: true,
@@ -39,7 +37,6 @@ export class ArticleListComponent implements OnInit {
         }
       });
   }
-
   archiveArticle(articleId: number | undefined): void {
     if (!articleId) {
       console.error('Error: article ID is missing or invalid');
