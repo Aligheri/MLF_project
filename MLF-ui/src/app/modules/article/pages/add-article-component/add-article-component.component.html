@@ -21,7 +21,7 @@
     </div>
 
     <div class="form-group">
-      <input id="topic" formControlName="topic" type="text" required />
+      <input id="topic" formControlName="topic" type="text" required placeholder="Enter topic (e.g., hibernate/orm)" />
       <label for="topic">Topic</label>
       <div *ngIf="articleForm.get('topic')?.invalid && articleForm.get('topic')?.touched" class="error-messages">
         <small>Topic is required.</small>
@@ -35,3 +35,5 @@
     {{ successMessage }}
   </div>
 </div>
+
+

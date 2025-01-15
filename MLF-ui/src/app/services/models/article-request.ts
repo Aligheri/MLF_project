@@ -3,6 +3,6 @@
 export interface ArticleRequest {
   priority: number;
   title: string;
-  topic: string;
+  topicId: number;
   url: string;
 }

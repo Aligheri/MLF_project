@@ -19,18 +19,19 @@ export class ArticleVisualizationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadGraph();
+    // this.loadGraph();
   }
 
-  loadGraph(): void {
-    this.articleService.getArticlesGroupedByTopic().subscribe((data) => {
-      this.createGraph(data);
-    });
-  }
+  // loadGraph(): void {
+  //   this.articleService.getArticlesGroupedByTopic().subscribe((data) => {
+  //     this.createGraph(data);
+  //   });
+  // }
 
   createGraph(data: { [key: string]: ArticleResponse[] }): void {
     interface TreeNode {
       name: string;
+      articles?: ArticleResponse[];
       children?: TreeNode[];
     }
 
@@ -51,10 +52,19 @@ export class ArticleVisualizationComponent implements OnInit {
     const height = this.height - margin.top - margin.bottom;
 
     const svg = d3
-      .select('#graph-container')
+      .select<SVGSVGElement, unknown>('#graph-container') // Указываем правильный тип для SVG
       .append('svg')
       .attr('width', this.width)
-      .attr('height', this.height)
+      .attr('height', this.height);
+
+    // Оборачиваем zoom-обработчик в отдельную переменную
+    const zoomBehavior = d3.zoom<SVGSVGElement, unknown>().on('zoom', (event) => {
+      svg.select('g').attr('transform', event.transform);
+    });
+
+    svg.call(zoomBehavior); // Применяем zoomBehavior к SVG
+
+    const g = svg
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -64,7 +74,7 @@ export class ArticleVisualizationComponent implements OnInit {
     treeLayout(root);
 
     // Links (соединительные линии)
-    svg.selectAll('.link')
+    g.selectAll('.link')
       .data(root.links())
       .enter()
       .append('path')
@@ -77,7 +87,8 @@ export class ArticleVisualizationComponent implements OnInit {
       );
 
     // Nodes (узлы дерева)
-    const node = svg.selectAll('.node')
+    const node = g
+      .selectAll('.node')
       .data(root.descendants())
       .enter()
       .append('g')
@@ -85,22 +96,20 @@ export class ArticleVisualizationComponent implements OnInit {
       .attr('transform', (d: any) => `translate(${d.x},${d.y})`)
       .on('click', (event: MouseEvent, d: any) => this.onTopicClick(d, svg, articlesData));
 
-    node.append('circle')
-      .attr('r', 8)
-      .attr('fill', '#FF6347'); // Топики отображаются красным цветом
+    node.append('circle').attr('r', 8).attr('fill', '#FF6347');
 
-    node.append('text')
+    node
+      .append('text')
       .attr('dy', 3)
       .attr('x', 12)
       .style('text-anchor', 'start')
       .text((d: any) => d.data.name)
       .style('font-size', '14px');
   }
+
   onTopicClick(d: any, svg: any, articlesData: { [key: string]: ArticleResponse[] }): void {
-    // Удаляем уже существующие статьи для других топиков
     svg.selectAll('.article-circle').remove();
 
-    // Проверяем, что это топик и он существует в данных
     const topicName = d.data.name;
     if (articlesData[topicName]) {
       const articles = articlesData[topicName];
@@ -108,39 +117,30 @@ export class ArticleVisualizationComponent implements OnInit {
       let radius = 150; // Изначальный радиус круга
       const angleStep = (2 * Math.PI) / articles.length;
 
-      // Устанавливаем границы экрана
       const screenWidth = this.width;
       const screenHeight = this.height;
-      const margin = 20; // Отступы от границ экрана
+      const margin = 50; // Отступы от границ экрана
 
       articles.forEach((article, index) => {
         const angle = angleStep * index; // Угол для размещения статьи
 
-
         let targetX = d.x + radius * Math.cos(angle);
         let targetY = d.y + radius * Math.sin(angle);
 
-
-        while (
-          targetX < margin || targetX > screenWidth - margin ||
-          targetY < margin || targetY > screenHeight - margin
-          ) {
-          radius -= 10;
-          targetX = d.x + radius * Math.cos(angle);
-          targetY = d.y + radius * Math.sin(angle);
-        }
-
+        // Проверяем и корректируем, чтобы узлы не выходили за границы
+        if (targetX < margin) targetX = margin;
+        if (targetX > screenWidth - margin) targetX = screenWidth - margin;
+        if (targetY < margin) targetY = margin;
+        if (targetY > screenHeight - margin) targetY = screenHeight - margin;
 
         const articleGroup = svg.append('g')
           .attr('class', 'article-circle')
           .attr('transform', `translate(${d.x},${d.y})`)
           .style('opacity', 0);
 
-
         articleGroup.append('circle')
           .attr('r', 6)
           .attr('fill', '#4682B4');
-
 
         articleGroup.append('a')
           .attr('xlink:href', article.url)

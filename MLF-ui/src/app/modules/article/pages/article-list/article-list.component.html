@@ -3,7 +3,7 @@
 <div class="d-flex justify-content-start gap-2 flex-wrap">
   <div *ngFor="let article of articleResponse" class="article-item">
     <h3 class="article-title">{{ article.title }}</h3>
-    <p class="article-topic">{{ article.topic }}</p>
+    <p class="article-topic">{{ article.topicId }}</p>
     <div class="d-flex gap-2">
 
       <a [href]="article.url" target="_blank" class="btn btn-primary">
