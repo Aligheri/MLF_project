@@ -1,33 +1,37 @@
 import {Component, OnInit} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
-import {FormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {LearningPathControllerService} from "../../../../services/services/learning-path-controller.service";
 import {LearningPathRequest} from "../../../../services/models/learning-path-request";
 import {LearningPathResponse} from "../../../../services/models/learning-path-response";
 import {CreateOrUpdateTopic$Params} from "../../../../services/fn/topic-contoller/create-or-update-topic";
 import {TopicContollerService} from "../../../../services/services/topic-contoller.service";
+import {ArticlesService} from "../../../../services/services/articles.service";
+import {ArticleRequest} from "../../../../services/models/article-request";
 
 @Component({
   selector: 'app-learning-path',
   standalone: true,
-  imports: [NgForOf, FormsModule, NgIf],
+  imports: [NgForOf, FormsModule, NgIf, ReactiveFormsModule],
   templateUrl: './learning-path.component.html',
   styleUrls: ['./learning-path.component.scss'],
 })
 export class LearningPathComponent implements OnInit {
-  newTopicPath: string = '';
   learningPaths: any[] = [];
-  topics:any[] = [];
   newLearningPath: any = {title: '', description: ''};
-  expandedPathId: number | null = null;
+  articles: any[] = [];
+
+
 
 
   constructor(private learningPathService: LearningPathControllerService,
-              private topicService: TopicContollerService) {
+              private topicService: TopicContollerService,
+              private articleService: ArticlesService) {
   }
 
   ngOnInit(): void {
     this.loadLearningPaths();
+
   }
 
   loadLearningPaths(): void {
@@ -36,14 +40,17 @@ export class LearningPathComponent implements OnInit {
         this.learningPaths = paths.map((path) => ({
           ...path,
           topics: [],
+          newTopicPath: '',
         }));
-      },
-      error: (error) => console.error('Error loading learning paths:', error),
-    });
-  }
 
-  toggleDescription(id: number): void {
-    this.expandedPathId = this.expandedPathId === id ? null : id;
+        // После загрузки всех Learning Paths, загрузить темы для каждого из них
+        this.learningPaths.forEach((path) => {
+          this.loadAllAttachedTopics(path.id);
+        });
+      },
+      error: (error) =>
+        console.error('Error loading learning paths:', error),
+    });
   }
 
   createLearningPath(): void {
@@ -55,9 +62,11 @@ export class LearningPathComponent implements OnInit {
 
       this.learningPathService.createLearningPath({body: request}).subscribe({
         next: (response: LearningPathResponse) => {
-          this.learningPaths.push(response);
-
+          this.learningPaths.push({...response, topics: [], newTopicPath: ''});
           this.newLearningPath = {title: '', description: ''};
+
+          // Загрузить темы для нового Learning Path
+          this.loadAllAttachedTopics(<number>response.id);
         },
         error: (error) => {
           console.error('Error creating learning path:', error);
@@ -73,10 +82,10 @@ export class LearningPathComponent implements OnInit {
     }
     this.learningPathService.deleteLearningPath({id}).subscribe({
       next: () => {
-        this.loadLearningPaths();
+        this.learningPaths = this.learningPaths.filter((lp) => lp.id !== id);
       },
       error: (error) => {
-        console.error('Error updating learning path description:', error);
+        console.error('Error deleting learning path:', error);
       },
     });
   }
@@ -88,14 +97,13 @@ export class LearningPathComponent implements OnInit {
     }
     this.learningPathService.editLearningPathTitle({id, newTitle}).subscribe({
       next: () => {
-        this.loadLearningPaths();
+        console.log(`Title for Learning Path ${id} updated successfully`);
       },
       error: (error) => {
-        console.error('Error updating learning path description:', error);
+        console.error('Error updating learning path title:', error);
       },
     });
   }
-
 
   updateLearningPathDescription(id: number, newDescription: string): void {
     if (!id || !newDescription) {
@@ -103,44 +111,54 @@ export class LearningPathComponent implements OnInit {
       return;
     }
 
-    this.learningPathService.editLearningPathDescription({id, newDescription}).subscribe({
-      next: (response) => {
-        console.log('Description updated successfully', response);
-        this.loadLearningPaths();
-      },
-      error: (error) => {
-        console.error('Error updating learning path description:', error);
-      },
-    });
+    this.learningPathService
+      .editLearningPathDescription({id, newDescription})
+      .subscribe({
+        next: (response) => {
+          console.log('Description updated successfully', response);
+        },
+        error: (error) => {
+          console.error('Error updating learning path description:', error);
+        },
+      });
   }
 
-  //TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
   createTopicPath(learningPathId: number): void {
-    if (this.newTopicPath.trim()) {
+    const learningPath = this.learningPaths.find((lp) => lp.id === learningPathId);
+    if (learningPath && learningPath.newTopicPath.trim()) {
       const params: CreateOrUpdateTopic$Params = {
-        path: this.newTopicPath,
-        learningPathId
+        path: learningPath.newTopicPath,
+        learningPathId,
       };
 
       this.topicService.createOrUpdateTopic(params).subscribe({
         next: () => {
-          this.newTopicPath = '';
-          console.log('Topic path created successfully');
+          learningPath.newTopicPath = ''; // Очистка поля после добавления
+          this.loadAllAttachedTopics(learningPathId); // Перезагрузка тем
         },
         error: (error) => console.error('Error creating topic path:', error),
       });
     }
   }
-//Todo - not working
-  loadAllAttachedTopics(learningPathId: number) {
-    this.topicService.getAllattachedTopics({ learningPathId }).subscribe({
+
+  loadAllAttachedTopics(learningPathId: number): void {
+    this.topicService.getAllattachedTopics({learningPathId}).subscribe({
       next: (response) => {
-        console.log('Loaded topics:', response); // Ensure this is not empty
-        this.topics = response;
+        console.log('Loaded topics for learningPathId:', learningPathId, response);
+        const learningPaths = this.learningPaths.find((lp) => lp.id === learningPathId);
+        if (learningPaths) {
+          learningPaths.topics = response;
+        }
       },
       error: (error) => {
         console.error('Error loading topics:', error);
       },
+    });
+  }
+  loadAllArticles(): void {
+    this.articleService.getArticles().subscribe({
+      next: (articles) => (this.articles = articles),
+      error: (error) => console.error('Error loading articles:', error),
     });
   }
 }

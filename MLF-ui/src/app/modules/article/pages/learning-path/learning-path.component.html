@@ -1,100 +1,47 @@
-<!--<div class="learning-path-container">-->
-<!--  &lt;!&ndash; Form for Creating a New Learning Path &ndash;&gt;-->
-<!--  <div class="form-container">-->
-<!--    <h2>Create Learning Path</h2>-->
-<!--    <input-->
-<!--      type="text"-->
-<!--      [(ngModel)]="newLearningPath.title"-->
-<!--      placeholder="Enter learning path title"-->
-<!--      class="form-input"-->
-<!--    />-->
-<!--    <textarea-->
-<!--      [(ngModel)]="newLearningPath.description"-->
-<!--      placeholder="Enter learning path description"-->
-<!--      class="form-textarea"-->
-<!--    ></textarea>-->
-<!--    <button (click)="createLearningPath()" class="btn primary-btn">Create</button>-->
-<!--  </div>-->
-
-
-<!--  <div class="learning-path-list">-->
-<!--    <h2>Learning Paths</h2>-->
-<!--    <div *ngFor="let path of learningPaths" class="learning-path-card">-->
-
-<!--      <input-->
-<!--        type="text"-->
-<!--        [(ngModel)]="path.title"-->
-<!--        placeholder="Edit title"-->
-<!--        class="card-input"-->
-<!--        (blur)="updateLearningPathTitle(path.id, path.title)"-->
-<!--      />-->
-
-<!--      <textarea-->
-<!--        [(ngModel)]="path.description"-->
-<!--        placeholder="Edit description"-->
-<!--        class="card-textarea"-->
-<!--        (blur)="updateLearningPathDescription(path.id, path.description)"-->
-<!--      ></textarea>-->
-
-<!--      <div class="topics-container">-->
-<!--        <h3>Topics</h3>-->
-<!--        <ul>-->
-<!--          <li>Topic placeholder</li>-->
-<!--        </ul>-->
-<!--        <input-->
-<!--          type="text"-->
-<!--          placeholder="Future topic input"-->
-<!--          class="form-input"-->
-<!--          disabled-->
-<!--        />-->
-<!--      </div>-->
-
-<!--      <div class="actions">-->
-<!--        <button (click)="deleteLearningPath(path.id)" class="btn danger-btn">-->
-<!--          Delete-->
-<!--        </button>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
-<!--</div>-->
 <div class="learning-path-container">
-  <!-- Form for Creating a New Learning Path -->
+  <!-- Форма для создания нового Learning Path -->
   <div class="form-container">
     <h2>Create Learning Path</h2>
-    <input
-      type="text"
-      [(ngModel)]="newLearningPath.title"
-      placeholder="Enter learning path title"
-      class="form-input"
-    />
-    <textarea
-      [(ngModel)]="newLearningPath.description"
-      placeholder="Enter learning path description"
-      class="form-textarea"
-    ></textarea>
+    <div class="form-group">
+      <input
+        type="text"
+        [(ngModel)]="newLearningPath.title"
+        placeholder="Enter learning path title"
+        class="form-input"
+      />
+    </div>
+    <div class="form-group">
+      <textarea
+        [(ngModel)]="newLearningPath.description"
+        placeholder="Enter learning path description"
+        class="form-textarea"
+      ></textarea>
+    </div>
     <button (click)="createLearningPath()" class="btn primary-btn">Create</button>
   </div>
 
-  <!-- List of Learning Paths -->
+  <!-- Список Learning Paths -->
   <div class="learning-path-list">
     <h2>Learning Paths</h2>
     <div *ngFor="let path of learningPaths" class="learning-path-card">
-      <!-- Title and Description -->
-      <input
-        type="text"
-        [(ngModel)]="path.title"
-        placeholder="Edit title"
-        class="card-input"
-        (blur)="updateLearningPathTitle(path.id, path.title)"
-      />
-      <textarea
-        [(ngModel)]="path.description"
-        placeholder="Edit description"
-        class="card-textarea"
-        (blur)="updateLearningPathDescription(path.id, path.description)"
-      ></textarea>
+      <!-- Заголовок и описание -->
+      <div class="card-header">
+        <input
+          type="text"
+          [(ngModel)]="path.title"
+          placeholder="Edit title"
+          class="card-input"
+          (blur)="updateLearningPathTitle(path.id, path.title)"
+        />
+        <textarea
+          [(ngModel)]="path.description"
+          placeholder="Edit description"
+          class="card-textarea"
+          (blur)="updateLearningPathDescription(path.id, path.description)"
+        ></textarea>
+      </div>
 
-      <!-- Topics Section -->
+      <!-- Раздел тем -->
       <div class="topics-container">
         <h3>Topics</h3>
         <button
@@ -103,23 +50,33 @@
         >
           Load Topics
         </button>
-        <ul>
-          <li *ngFor="let topic of topics">{{ topic.name }}</li>
+        <ul class="topics-list">
+          <!-- Отображение тем, привязанных к текущему Learning Path -->
+          <li *ngFor="let topic of path.topics">{{ topic.name }}</li>
         </ul>
 
-        <!-- Add New Topic -->
-        <input
-          type="text"
-          [(ngModel)]="newTopicPath"
-          placeholder="Enter topic path (e.g., math/algebra)"
-          class="form-input"
-        />
-        <button (click)="createTopicPath(path.id)" class="btn primary-btn">Add Topic Path</button>
+        <!-- Добавление новой темы -->
+        <div class="form-group">
+          <input
+            type="text"
+            [(ngModel)]="path.newTopicPath"
+            placeholder="Enter topic path: math/algebra"
+            class="form-input"
+          />
+        </div>
+        <button (click)="createTopicPath(path.id)" class="btn primary-btn">
+          Add Topic Path
+        </button>
       </div>
 
-      <!-- Actions Section -->
+      <!-- Действия -->
       <div class="actions">
-        <button (click)="deleteLearningPath(path.id)" class="btn danger-btn">Delete</button>
+        <button
+          (click)="deleteLearningPath(path.id)"
+          class="btn danger-btn"
+        >
+          Delete
+        </button>
       </div>
     </div>
   </div>
