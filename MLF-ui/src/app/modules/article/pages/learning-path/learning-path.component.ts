@@ -155,10 +155,4 @@ export class LearningPathComponent implements OnInit {
       },
     });
   }
-  loadAllArticles(): void {
-    this.articleService.getArticles().subscribe({
-      next: (articles) => (this.articles = articles),
-      error: (error) => console.error('Error loading articles:', error),
-    });
-  }
 }
