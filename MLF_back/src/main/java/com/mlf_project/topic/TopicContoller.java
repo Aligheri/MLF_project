@@ -21,13 +21,13 @@ public class TopicContoller {
     @PostMapping("/{learningPathId}")
     public ResponseEntity<Topic> createOrUpdateTopic(
             @RequestParam String path,
-            @PathVariable Long learningPathId) {
-        Topic topic = topicService.createOrUpdateTopic(path, learningPathId);
+            @PathVariable Long learningPathId, Authentication connectedUser) {
+        Topic topic = topicService.createOrUpdateTopic(path, learningPathId, connectedUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(topic);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<TopicResponse>> getAllattachedTopics(Long learningPathId, Authentication connectedUser) {
+    @GetMapping
+    public ResponseEntity<List<TopicResponse>> getAllattachedTopics( Authentication connectedUser, @RequestParam Long learningPathId) {
         List<TopicResponse> topics = topicService.getAllAttachedTopics(learningPathId, connectedUser)
                 .stream().map(topicMapper::toTopicResponse)
                 .collect(Collectors.toList());
@@ -48,10 +48,4 @@ public class TopicContoller {
         String treeJson = topicService.getTopicTreeJson(learningPathId);
         return ResponseEntity.ok(treeJson);
     }
-
-//    @GetMapping("/topics")
-//    public List<Topic> getTopicsByLearningPath(@RequestParam Long learningPathId) {
-//        return topicService.getTopicsByLearningPathId(learningPathId);
-//    }
-
 }

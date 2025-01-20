@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class TopicService {
@@ -33,7 +34,12 @@ public class TopicService {
 
 
     @Transactional
-    public Topic createOrUpdateTopic(String path, Long learningPathId) {
+    public Topic createOrUpdateTopic(String path, Long learningPathId, Authentication connectedUser) {
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         if (path == null || path.isEmpty()) {
             throw new IllegalArgumentException("Path cannot be null or empty");
         }
@@ -60,6 +66,7 @@ public class TopicService {
                             "Parent topic '" + currentSegment + "' does not exist for subtopic creation in this learning path");
                 }
                 topic = new Topic(currentSegment, learningPath, parentTopic);
+                topic.setOwner(user);
                 topicRepository.save(topic);
             }
 
@@ -68,6 +75,7 @@ public class TopicService {
 
         return parentTopic;
     }
+
     // TODO
     public List<Topic> getAllAttachedTopics(Long learningPathId, Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
