@@ -24,12 +24,18 @@ public class ArticleController {
     private final ArticleMapper articleMapper;
 
 
-
     //Tested
     @PostMapping
     public ResponseEntity<ArticleResponse> createArticle(@Valid @RequestBody ArticleRequest articleRequest, Authentication authentication) {
         Article savedArticle = articleService.saveArticle(articleRequest, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(articleMapper.toArticleResponse(savedArticle));
+    }
+
+    @PostMapping("/non-attached")
+    public ResponseEntity<ArticleResponse> createMinimalArticle(
+            @Valid @RequestBody NonAttachedArticleRequest request, Authentication authentication) {
+        Article article = articleService.saveNonAttachedArticle(request, authentication);
+        return ResponseEntity.status(HttpStatus.CREATED).body(articleMapper.toArticleResponse(article));
     }
 
     //Tested
@@ -77,10 +83,10 @@ public class ArticleController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/update-priorities")
-    public ResponseEntity<Void> updateArticlePriorities(@RequestBody List<ArticlePriorityUpdateRequest> updates) {
-        articleService.updatePriorities(updates);
-        return ResponseEntity.ok().build();
-    }
+//    @PostMapping("/update-priorities")
+//    public ResponseEntity<Void> updateArticlePriorities(@RequestBody List<ArticlePriorityUpdateRequest> updates) {
+//        articleService.updatePriorities(updates);
+//        return ResponseEntity.ok().build();
+//    }
 
 }

@@ -1,4 +1,5 @@
 package com.mlf_project.article;
+
 import com.mlf_project.entities.User;
 import com.mlf_project.topic.Topic;
 import jakarta.persistence.*;
@@ -6,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,17 +16,15 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class Article {
-// TODO - Learning path - Topic - Article (Struncture of the project)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String url;
     private String title;
-//    private String topic;
 
     @ManyToOne
-    @JoinColumn(name = "topic_id") // закоментить если нужна другая версия
+    @JoinColumn(name = "topic_id")
     private Topic topic;
 
     private LocalDateTime createdAt;
@@ -35,4 +35,6 @@ public class Article {
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+
+    private boolean attached = false;
 }

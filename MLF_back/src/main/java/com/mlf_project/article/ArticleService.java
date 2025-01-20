@@ -26,14 +26,14 @@ public class ArticleService {
     private final TopicRepository topicRepository;
 
     @Autowired
-    public ArticleService(ArticleRepository articleRepository, ArticleMapper articleMapper, UserRepository userRepository , TopicRepository topicRepository) {
+    public ArticleService(ArticleRepository articleRepository, ArticleMapper articleMapper, UserRepository userRepository, TopicRepository topicRepository) {
         this.articleRepository = articleRepository;
         this.articleMapper = articleMapper;
         this.userRepository = userRepository;
         this.topicRepository = topicRepository;
     }
 
-//    public Article saveArticle(ArticleRequest request, Authentication connectedUser) {
+    //    public Article saveArticle(ArticleRequest request, Authentication connectedUser) {
 //        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
 //        User user = userRepository.findById(userDetails.getId())
 //                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -47,24 +47,17 @@ public class ArticleService {
 //    }
 
     public Article saveArticle(ArticleRequest request, Authentication connectedUser) {
-        // Retrieve the connected user
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        // Map the request to an Article entity
         Article article = articleMapper.toArticle(request);
         article.setOwner(user);
 
-        // Assign a default priority if none is provided
         if (article.getPriority() == null) {
             article.setPriority(3);
         }
 
-        // Set creation time
         article.setCreatedAt(LocalDateTime.now());
-
-        // Fetch the associated topic
         if (request.getTopicId() != null) {
             Topic topic = topicRepository.findById(request.getTopicId())
                     .orElseThrow(() -> new EntityNotFoundException("Topic not found with ID: " + request.getTopicId()));
@@ -73,7 +66,22 @@ public class ArticleService {
             throw new IllegalArgumentException("Article must be associated with a valid topic.");
         }
 
-        // Save the article
+        return articleRepository.save(article);
+    }
+
+    public Article saveNonAttachedArticle(NonAttachedArticleRequest request, Authentication connectedUser) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Article article = new Article();
+        article.setUrl(request.getUrl());
+        article.setTitle(request.getTitle());
+        article.setOwner(user);
+        article.setAttached(false);
+        article.setPriority(3);
+        article.setCreatedAt(LocalDateTime.now());
+
         return articleRepository.save(article);
     }
 
@@ -140,14 +148,14 @@ public class ArticleService {
         articleRepository.deleteAll(articles);
     }
 
-    public void updatePriorities(List<ArticlePriorityUpdateRequest> updates) {
-        for (ArticlePriorityUpdateRequest update : updates) {
-            Article article = articleRepository.findById(update.getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Article not found with ID: " + update.getId()));
-            article.setPriority(update.getPriority());
-            articleRepository.save(article);
-        }
-    }
+//    public void updatePriorities(List<ArticlePriorityUpdateRequest> updates) {
+//        for (ArticlePriorityUpdateRequest update : updates) {
+//            Article article = articleRepository.findById(update.getId())
+//                    .orElseThrow(() -> new EntityNotFoundException("Article not found with ID: " + update.getId()));
+//            article.setPriority(update.getPriority());
+//            articleRepository.save(article);
+//        }
+//    }
 
     public List<Article> getAllArchivedArticles(Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
