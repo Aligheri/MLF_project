@@ -6,15 +6,15 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { LearningPathRequest } from '../../models/learning-path-request';
-import { LearningPathResponse } from '../../models/learning-path-response';
+import { ArticleResponse } from '../../models/article-response';
+import { NonAttachedArticleRequest } from '../../models/non-attached-article-request';
 
-export interface CreateLearningPath$Params {
-      body: LearningPathRequest
+export interface CreateMinimalArticle$Params {
+      body: NonAttachedArticleRequest
 }
 
-export function createLearningPath(http: HttpClient, rootUrl: string, params: CreateLearningPath$Params, context?: HttpContext): Observable<StrictHttpResponse<LearningPathResponse>> {
-  const rb = new RequestBuilder(rootUrl, createLearningPath.PATH, 'post');
+export function createMinimalArticle(http: HttpClient, rootUrl: string, params: CreateMinimalArticle$Params, context?: HttpContext): Observable<StrictHttpResponse<ArticleResponse>> {
+  const rb = new RequestBuilder(rootUrl, createMinimalArticle.PATH, 'post');
   if (params) {
     rb.body(params.body, 'application/json');
   }
@@ -24,9 +24,9 @@ export function createLearningPath(http: HttpClient, rootUrl: string, params: Cr
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<LearningPathResponse>;
+      return r as StrictHttpResponse<ArticleResponse>;
     })
   );
 }
 
-createLearningPath.PATH = '/api/learning-paths';
+createMinimalArticle.PATH = '/articles/non-attached';

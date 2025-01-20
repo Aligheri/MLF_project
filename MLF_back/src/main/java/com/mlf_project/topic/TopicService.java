@@ -10,6 +10,7 @@ import com.mlf_project.repository.UserRepository;
 import com.mlf_project.security.services.UserDetailsImpl;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class TopicService {
@@ -32,7 +34,12 @@ public class TopicService {
 
 
     @Transactional
-    public Topic createOrUpdateTopic(String path, Long learningPathId) {
+    public Topic createOrUpdateTopic(String path, Long learningPathId, Authentication connectedUser) {
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         if (path == null || path.isEmpty()) {
             throw new IllegalArgumentException("Path cannot be null or empty");
         }
@@ -59,6 +66,7 @@ public class TopicService {
                             "Parent topic '" + currentSegment + "' does not exist for subtopic creation in this learning path");
                 }
                 topic = new Topic(currentSegment, learningPath, parentTopic);
+                topic.setOwner(user);
                 topicRepository.save(topic);
             }
 
@@ -67,13 +75,25 @@ public class TopicService {
 
         return parentTopic;
     }
-    // TODO
-    public List<Topic> getAllAttachedTopics(Long learningPathId , Authentication connectedUser){
+
+    public List<Topic> getAllTopics(Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-      return topicRepository.getAllByLearningPathId(learningPathId, TopicSpecification.withOwnerId(user.getId()));
+        return topicRepository.findAll(TopicSpecification.withOwnerId(user.getId()));
+    }
+
+    public List<Topic> getAllAttachedTopics(Long learningPathId, Authentication connectedUser) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Specification<Topic> spec = Specification
+                .where(TopicSpecification.withOwnerId(user.getId()))
+                .and(TopicSpecification.withLearningPathId(learningPathId));
+
+        return topicRepository.findAll(spec);
     }
 
     @Transactional

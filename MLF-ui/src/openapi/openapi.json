@@ -65,20 +65,17 @@
         }
       }
     },
-    "/articles/update-priorities": {
+    "/articles/non-attached": {
       "post": {
         "tags": [
           "articles"
         ],
-        "operationId": "updateArticlePriorities",
+        "operationId": "createMinimalArticle",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ArticlePriorityUpdateRequest"
-                }
+                "$ref": "#/components/schemas/NonAttachedArticleRequest"
               }
             }
           },
@@ -86,7 +83,14 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticleResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -174,7 +178,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/LearningPath"
+                    "$ref": "#/components/schemas/LearningPathResponse"
                   }
                 }
               }
@@ -441,6 +445,40 @@
         }
       }
     },
+    "/api/topics": {
+      "get": {
+        "tags": [
+          "topic-contoller"
+        ],
+        "operationId": "getAllattachedTopics",
+        "parameters": [
+          {
+            "name": "learningPathId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopicResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/topics/{learningPathId}/tree": {
       "get": {
         "tags": [
@@ -465,6 +503,29 @@
               "*/*": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/topics/topics": {
+      "get": {
+        "tags": [
+          "topic-contoller"
+        ],
+        "operationId": "getAllTopics",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopicResponse"
+                  }
                 }
               }
             }
@@ -624,21 +685,19 @@
           }
         }
       },
-      "ArticlePriorityUpdateRequest": {
+      "NonAttachedArticleRequest": {
         "required": [
-          "priority"
+          "title",
+          "url"
         ],
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
+          "url": {
+            "pattern": "https?://.+",
+            "type": "string"
           },
-          "priority": {
-            "maximum": 5,
-            "minimum": 1,
-            "type": "integer",
-            "format": "int32"
+          "title": {
+            "type": "string"
           }
         }
       },
@@ -671,6 +730,9 @@
           },
           "owner": {
             "$ref": "#/components/schemas/User"
+          },
+          "attached": {
+            "type": "boolean"
           }
         }
       },
@@ -736,6 +798,9 @@
             "items": {
               "$ref": "#/components/schemas/Article"
             }
+          },
+          "owner": {
+            "$ref": "#/components/schemas/User"
           }
         }
       },
@@ -818,6 +883,9 @@
             "format": "int64"
           },
           "title": {
+            "type": "string"
+          },
+          "description": {
             "type": "string"
           }
         }
@@ -928,6 +996,40 @@
             "type": "array",
             "items": {
               "type": "string"
+            }
+          }
+        }
+      },
+      "TopicResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "learningPathId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "childrenIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "articleIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
             }
           }
         }

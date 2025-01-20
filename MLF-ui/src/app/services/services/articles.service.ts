@@ -14,6 +14,8 @@ import { ArchiveArticle$Params } from '../fn/articles/archive-article';
 import { ArticleResponse } from '../models/article-response';
 import { createArticle } from '../fn/articles/create-article';
 import { CreateArticle$Params } from '../fn/articles/create-article';
+import { createMinimalArticle } from '../fn/articles/create-minimal-article';
+import { CreateMinimalArticle$Params } from '../fn/articles/create-minimal-article';
 import { deleteArticle } from '../fn/articles/delete-article';
 import { DeleteArticle$Params } from '../fn/articles/delete-article';
 import { deleteArticlesByTopic } from '../fn/articles/delete-articles-by-topic';
@@ -22,8 +24,6 @@ import { getArchivedArticles } from '../fn/articles/get-archived-articles';
 import { GetArchivedArticles$Params } from '../fn/articles/get-archived-articles';
 import { getArticles } from '../fn/articles/get-articles';
 import { GetArticles$Params } from '../fn/articles/get-articles';
-import { updateArticlePriorities } from '../fn/articles/update-article-priorities';
-import { UpdateArticlePriorities$Params } from '../fn/articles/update-article-priorities';
 
 @Injectable({ providedIn: 'root' })
 export class ArticlesService extends BaseService {
@@ -81,28 +81,28 @@ export class ArticlesService extends BaseService {
     );
   }
 
-  /** Path part for operation `updateArticlePriorities()` */
-  static readonly UpdateArticlePrioritiesPath = '/articles/update-priorities';
+  /** Path part for operation `createMinimalArticle()` */
+  static readonly CreateMinimalArticlePath = '/articles/non-attached';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `updateArticlePriorities()` instead.
+   * To access only the response body, use `createMinimalArticle()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updateArticlePriorities$Response(params: UpdateArticlePriorities$Params, context?: HttpContext): Observable<StrictHttpResponse<void>> {
-    return updateArticlePriorities(this.http, this.rootUrl, params, context);
+  createMinimalArticle$Response(params: CreateMinimalArticle$Params, context?: HttpContext): Observable<StrictHttpResponse<ArticleResponse>> {
+    return createMinimalArticle(this.http, this.rootUrl, params, context);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `updateArticlePriorities$Response()` instead.
+   * To access the full response (for headers, for example), `createMinimalArticle$Response()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updateArticlePriorities(params: UpdateArticlePriorities$Params, context?: HttpContext): Observable<void> {
-    return this.updateArticlePriorities$Response(params, context).pipe(
-      map((r: StrictHttpResponse<void>): void => r.body)
+  createMinimalArticle(params: CreateMinimalArticle$Params, context?: HttpContext): Observable<ArticleResponse> {
+    return this.createMinimalArticle$Response(params, context).pipe(
+      map((r: StrictHttpResponse<ArticleResponse>): ArticleResponse => r.body)
     );
   }
 

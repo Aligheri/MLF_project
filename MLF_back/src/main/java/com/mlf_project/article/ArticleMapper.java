@@ -25,6 +25,7 @@ public class ArticleMapper {
 //        article.setTopic(request.getTopicId());
         article.setCreatedAt(LocalDateTime.now());
         article.setPriority(request.getPriority());
+
         return article;
     }
 

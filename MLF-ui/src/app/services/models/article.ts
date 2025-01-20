@@ -4,6 +4,7 @@ import { Topic } from '../models/topic';
 import { User } from '../models/user';
 export interface Article {
   archived?: boolean;
+  attached?: boolean;
   createdAt?: string;
   id?: number;
   owner?: User;

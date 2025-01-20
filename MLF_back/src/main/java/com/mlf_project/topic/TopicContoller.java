@@ -3,10 +3,12 @@ package com.mlf_project.topic;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -14,13 +16,32 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TopicContoller {
     private final TopicService topicService;
+    private final TopicMapper topicMapper;
 
     @PostMapping("/{learningPathId}")
     public ResponseEntity<Topic> createOrUpdateTopic(
             @RequestParam String path,
-            @PathVariable Long learningPathId) {
-        Topic topic = topicService.createOrUpdateTopic(path, learningPathId);
+            @PathVariable Long learningPathId, Authentication connectedUser) {
+        Topic topic = topicService.createOrUpdateTopic(path, learningPathId, connectedUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(topic);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TopicResponse>> getAllattachedTopics(Authentication connectedUser, @RequestParam Long learningPathId) {
+        List<TopicResponse> topics = topicService.getAllAttachedTopics(learningPathId, connectedUser)
+                .stream().map(topicMapper::toTopicResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(topics);
+    }
+
+    @GetMapping("/topics")
+    public ResponseEntity<List<TopicResponse>> getAllTopics(Authentication connectedUser) {
+        List<TopicResponse> topics = topicService.getAllTopics(connectedUser)
+                .stream().map(topicMapper::toTopicResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(topics);
     }
 
     @PostMapping("/assign-articles")
@@ -35,10 +56,4 @@ public class TopicContoller {
         String treeJson = topicService.getTopicTreeJson(learningPathId);
         return ResponseEntity.ok(treeJson);
     }
-
-//    @GetMapping("/topics")
-//    public List<Topic> getTopicsByLearningPath(@RequestParam Long learningPathId) {
-//        return topicService.getTopicsByLearningPathId(learningPathId);
-//    }
-
 }

@@ -18,50 +18,38 @@ export class AddArticleComponentComponent {
   articleForm: FormGroup;
   successMessage: string | null = null;
   errorMessage: string | null = null;
-  selectedTopicId?: number; // Selected topic ID
 
-
-  constructor(private fb: FormBuilder, private articleService: ArticlesService) {
+  constructor(private fb: FormBuilder, private articlesService: ArticlesService) {
     this.articleForm = this.fb.group({
       url: ['', [Validators.required, Validators.pattern('https?://.+')]],
-      title: ['', [Validators.required]],
-      topicId: ['', [Validators.required]],
-      priority: [1, [Validators.required, Validators.min(1), Validators.max(5)]]
+      title: ['', [Validators.required]], // Название статьи
     });
   }
 
+
   onSubmit(): void {
-    if (this.articleForm.valid && this.selectedTopicId) {
+    if (this.articleForm.valid) {
       const formData = this.articleForm.value;
 
-      const params = {
-        body: {
-          url: formData.url,
-          title: formData.title,
-          topicId: this.selectedTopicId, // Pass topic ID instead of a string
-          priority: formData.priority,
-        },
+      const minimalArticleRequest = {
+        title: formData.title,
+        url: formData.url
       };
 
-      this.articleService.createArticle(params).subscribe({
+      this.articlesService.createMinimalArticle({body: minimalArticleRequest}).subscribe({
         next: (response) => {
-          console.log('Article added successfully:', response);
-          this.successMessage = 'Article successfully added!';
+          console.log('Article created successfully:', response);
+          this.successMessage = 'Article successfully created!';
           this.errorMessage = null;
           this.articleForm.reset();
           setTimeout(() => (this.successMessage = null), 3000);
         },
         error: (error) => {
-          console.error('Error adding article:', error);
-          this.errorMessage = 'Failed to add article. Please try again.';
-          this.successMessage = null;
+          console.error('Error creating article:', error);
+          this.errorMessage = 'Failed to create article. Please try again.';
           setTimeout(() => (this.errorMessage = null), 3000);
         },
       });
-    } else {
-      console.log('Form is invalid or topic is not selected');
-      this.errorMessage = 'Please fill in all required fields correctly.';
-      setTimeout(() => (this.errorMessage = null), 3000);
     }
   }
 }

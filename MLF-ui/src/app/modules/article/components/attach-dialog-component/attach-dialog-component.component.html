@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Select a Topic</h1>
+<div mat-dialog-content>
+  <mat-list>
+    <mat-list-item *ngFor="let topic of topics" (click)="selectTopic(topic.id ?? 0)">
+      {{ topic.name }}
+    </mat-list-item>
+  </mat-list>
+</div>
