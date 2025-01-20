@@ -510,6 +510,29 @@
         }
       }
     },
+    "/api/topics/topics": {
+      "get": {
+        "tags": [
+          "topic-contoller"
+        ],
+        "operationId": "getAllTopics",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TopicResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/activate-account": {
       "get": {
         "tags": [
