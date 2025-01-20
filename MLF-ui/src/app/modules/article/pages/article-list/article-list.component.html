@@ -10,20 +10,25 @@
         <i class="fas fa-book"></i> Read on..
       </a>
 
-      <button class="btn btn-danger" (click)="archiveArticle(article.id)">
+      <button class="btn btn-warning" (click)="archiveArticle(article.id)">
         <i class="fas fa-archive"></i> Archive article
       </button>
+
       <button
         (click)="deleteArticle(article.id)"
         class="btn btn-danger"
         title="Delete this article"
-        >
-        Delete
+      >
+        <i class="fas fa-trash"></i> Delete
+      </button>
+
+      <button
+        class="btn btn-success"
+        (click)="openAttachDialog(article)"
+        title="Attach article to topic"
+      >
+        <i class="fas fa-link"></i> Attach to Topic
       </button>
     </div>
   </div>
 </div>
-
-
-
-

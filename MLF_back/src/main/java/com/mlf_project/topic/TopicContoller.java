@@ -27,7 +27,7 @@ public class TopicContoller {
     }
 
     @GetMapping
-    public ResponseEntity<List<TopicResponse>> getAllattachedTopics( Authentication connectedUser, @RequestParam Long learningPathId) {
+    public ResponseEntity<List<TopicResponse>> getAllattachedTopics(Authentication connectedUser, @RequestParam Long learningPathId) {
         List<TopicResponse> topics = topicService.getAllAttachedTopics(learningPathId, connectedUser)
                 .stream().map(topicMapper::toTopicResponse)
                 .collect(Collectors.toList());
@@ -35,6 +35,14 @@ public class TopicContoller {
         return ResponseEntity.ok(topics);
     }
 
+    @GetMapping("/topics")
+    public ResponseEntity<List<TopicResponse>> getAllTopics(Authentication connectedUser) {
+        List<TopicResponse> topics = topicService.getAllTopics(connectedUser)
+                .stream().map(topicMapper::toTopicResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(topics);
+    }
 
     @PostMapping("/assign-articles")
     public ResponseEntity<Void> assignArticlesToTopics(

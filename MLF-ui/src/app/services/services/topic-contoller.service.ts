@@ -15,6 +15,8 @@ import { createOrUpdateTopic } from '../fn/topic-contoller/create-or-update-topi
 import { CreateOrUpdateTopic$Params } from '../fn/topic-contoller/create-or-update-topic';
 import { getAllattachedTopics } from '../fn/topic-contoller/get-allattached-topics';
 import { GetAllattachedTopics$Params } from '../fn/topic-contoller/get-allattached-topics';
+import { getAllTopics } from '../fn/topic-contoller/get-all-topics';
+import { GetAllTopics$Params } from '../fn/topic-contoller/get-all-topics';
 import { getTopicTreeJson } from '../fn/topic-contoller/get-topic-tree-json';
 import { GetTopicTreeJson$Params } from '../fn/topic-contoller/get-topic-tree-json';
 import { Topic } from '../models/topic';
@@ -123,6 +125,31 @@ export class TopicContollerService extends BaseService {
   getTopicTreeJson(params: GetTopicTreeJson$Params, context?: HttpContext): Observable<string> {
     return this.getTopicTreeJson$Response(params, context).pipe(
       map((r: StrictHttpResponse<string>): string => r.body)
+    );
+  }
+
+  /** Path part for operation `getAllTopics()` */
+  static readonly GetAllTopicsPath = '/api/topics/topics';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getAllTopics()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getAllTopics$Response(params?: GetAllTopics$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<TopicResponse>>> {
+    return getAllTopics(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getAllTopics$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getAllTopics(params?: GetAllTopics$Params, context?: HttpContext): Observable<Array<TopicResponse>> {
+    return this.getAllTopics$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Array<TopicResponse>>): Array<TopicResponse> => r.body)
     );
   }
 

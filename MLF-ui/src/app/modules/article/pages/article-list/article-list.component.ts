@@ -4,6 +4,12 @@ import {Router} from "@angular/router";
 import {ArticleResponse} from "../../../../services/models/article-response";
 import {NgForOf, NgIf} from "@angular/common";
 import {BubbleChartModule,  NgxChartsModule} from "@swimlane/ngx-charts";
+import {Article} from "../../../../services/models/article";
+import {
+  AttachDialogComponentComponent
+} from "../../components/attach-dialog-component/attach-dialog-component.component";
+import {TopicContollerService} from "../../../../services/services/topic-contoller.service";
+import {MatDialog} from "@angular/material/dialog";
 @Component({
   selector: 'app-article-list',
   standalone: true,
@@ -22,6 +28,8 @@ export class ArticleListComponent implements OnInit {
 
 
   constructor(private articleService: ArticlesService,
+              private dialog: MatDialog,
+              private topicService: TopicContollerService,
               private router: Router) {
   }
 
@@ -75,6 +83,40 @@ export class ArticleListComponent implements OnInit {
       error: (err) => {
         console.error('Error deleting article:', err);
       },
+    });
+  }
+  attachArticleToTopic(articleId: number, topicId: number): void {
+    const body = { [topicId]: [articleId] }; // Формат запроса
+    if (!articleId) {
+      console.error('Error: Article ID is undefined');
+      return;
+    }
+    this.topicService.assignArticlesToTopics({ body }).subscribe({
+      next: () => {
+        console.log(`Article ${articleId} attached to topic ${topicId}`);
+        alert('Article successfully attached to the topic!');
+      },
+      error: (err) => {
+        console.error('Error attaching article:', err);
+        alert('Failed to attach article.');
+      },
+    });
+  }
+  openAttachDialog(article: Article): void {
+    const dialogRef = this.dialog.open(AttachDialogComponentComponent, {
+      width: '400px',
+      data: { article },
+    });
+
+    dialogRef.afterClosed().subscribe((selectedTopicId: number | null) => {
+      if (selectedTopicId) {
+        if (!article.id) {
+          console.error('Error: Article ID is undefined');
+          return;
+        }
+
+        this.attachArticleToTopic(article.id, selectedTopicId);
+      }
     });
   }
 }

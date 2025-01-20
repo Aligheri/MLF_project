@@ -76,7 +76,14 @@ public class TopicService {
         return parentTopic;
     }
 
-    // TODO
+    public List<Topic> getAllTopics(Authentication connectedUser) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return topicRepository.findAll(TopicSpecification.withOwnerId(user.getId()));
+    }
+
     public List<Topic> getAllAttachedTopics(Long learningPathId, Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
