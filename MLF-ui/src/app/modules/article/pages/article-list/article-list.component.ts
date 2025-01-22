@@ -108,7 +108,7 @@ export class ArticleListComponent implements OnInit {
       data: { article },
     });
 
-    dialogRef.afterClosed().subscribe((selectedTopicId: number | null) => {
+    dialogRef.afterClosed().subscribe((selectedTopicId: number) => {
       if (selectedTopicId) {
         if (!article.id) {
           console.error('Error: Article ID is undefined');
