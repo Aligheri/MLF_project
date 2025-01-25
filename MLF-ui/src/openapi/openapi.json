@@ -399,6 +399,40 @@
         }
       }
     },
+    "/articles/{topicId}/articles": {
+      "get": {
+        "tags": [
+          "articles"
+        ],
+        "operationId": "getArticlesByTopic",
+        "parameters": [
+          {
+            "name": "topicId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArticleResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/articles/my-articles": {
       "get": {
         "tags": [
