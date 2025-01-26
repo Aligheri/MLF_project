@@ -1,5 +1,7 @@
 package com.mlf_project.article;
 
+import com.mlf_project.entities.User;
+import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ArticleSpecification {
@@ -14,5 +16,16 @@ public class ArticleSpecification {
 
     public static Specification<Article> withOwnerIdAndArchived(Long ownerId, boolean archived) {
         return Specification.where(withOwnerId(ownerId)).and(withArchived(archived));
+    }
+
+    public static Specification<Article> byTopicIdAndUserId(Long topicId, Long userId) {
+        return (root, query, criteriaBuilder) -> {
+            Join<Article, User> userJoin = root.join("owner");
+
+            return criteriaBuilder.and(
+                    criteriaBuilder.equal(root.get("topic").get("id"), topicId),
+                    criteriaBuilder.equal(userJoin.get("id"), userId)
+            );
+        };
     }
 }
