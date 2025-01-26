@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -75,9 +76,46 @@ public class TopicService {
 //
 //        return parentTopic;
 //    }
+//    @Transactional
+//    public Topic createOrUpdateTopic(String path, Long learningPathId, Authentication connectedUser) {
+//
+//        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+//        User user = userRepository.findById(userDetails.getId())
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//
+//        if (path == null || path.isEmpty()) {
+//            throw new IllegalArgumentException("Path cannot be null or empty");
+//        }
+//
+//        LearningPath learningPath = learningPathRepository.findById(learningPathId)
+//                .orElseThrow(() -> new IllegalArgumentException("LearningPath with ID " + learningPathId + " does not exist"));
+//
+//        String[] pathSegments = path.split("/");
+//        if (pathSegments.length == 0) {
+//            throw new IllegalArgumentException("Invalid path format");
+//        }
+//
+//        Topic parentTopic = null;
+//
+//        for (String currentSegment : pathSegments) {
+//            // Проверяем существование топика с данным именем, родителем и LearningPath
+//            Topic topic = topicRepository.findByNameAndParentAndLearningPath(currentSegment, parentTopic, learningPath);
+//
+//            if (topic == null) {
+//                // Если топик не существует, создаем его
+//                topic = new Topic(currentSegment, learningPath, parentTopic);
+//                topic.setOwner(user);
+//                topicRepository.save(topic);
+//            }
+//
+//            // Устанавливаем текущий топик как родитель для следующего уровня
+//            parentTopic = topic;
+//        }
+//
+//        return parentTopic;
+//    }
     @Transactional
     public Topic createOrUpdateTopic(String path, Long learningPathId, Authentication connectedUser) {
-
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -97,23 +135,22 @@ public class TopicService {
         Topic parentTopic = null;
 
         for (String currentSegment : pathSegments) {
-            // Проверяем существование топика с данным именем, родителем и LearningPath
-            Topic topic = topicRepository.findByNameAndParentAndLearningPath(currentSegment, parentTopic, learningPath);
+            // Проверяем существование топика
+            Optional<Topic> optionalTopic = topicRepository.findByNameAndParentAndLearningPath(currentSegment, parentTopic, learningPath);
 
-            if (topic == null) {
-                // Если топик не существует, создаем его
-                topic = new Topic(currentSegment, learningPath, parentTopic);
-                topic.setOwner(user);
-                topicRepository.save(topic);
+            if (optionalTopic.isPresent()) {
+                parentTopic = optionalTopic.get(); // Переходим к следующему уровню
+            } else {
+                // Создаем новый топик
+                Topic newTopic = new Topic(currentSegment, learningPath, parentTopic);
+                newTopic.setOwner(user);
+                topicRepository.save(newTopic);
+                parentTopic = newTopic;
             }
-
-            // Устанавливаем текущий топик как родитель для следующего уровня
-            parentTopic = topic;
         }
 
         return parentTopic;
     }
-
 
     public List<Topic> getAllTopics(Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
