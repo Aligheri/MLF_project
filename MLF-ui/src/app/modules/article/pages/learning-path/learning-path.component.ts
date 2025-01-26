@@ -6,6 +6,8 @@ import {LearningPathRequest} from "../../../../services/models/learning-path-req
 import {LearningPathResponse} from "../../../../services/models/learning-path-response";
 import {CreateOrUpdateTopic$Params} from "../../../../services/fn/topic-contoller/create-or-update-topic";
 import {TopicContollerService} from "../../../../services/services/topic-contoller.service";
+import {ArticlesService} from "../../../../services/services/articles.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-learning-path',
@@ -19,8 +21,11 @@ export class LearningPathComponent implements OnInit {
   newLearningPath: any = {title: '', description: ''};
   articles: any[] = [];
 
+
   constructor(private learningPathService: LearningPathControllerService,
               private topicService: TopicContollerService,
+              private articleService: ArticlesService,
+              private router: Router
   ) {
   }
 
@@ -148,4 +153,7 @@ export class LearningPathComponent implements OnInit {
     });
   }
 
+  onTopicClick(topicId: number): void {
+    this.router.navigate(['article/my-articles'], { queryParams: { topicId } });
+  }
 }

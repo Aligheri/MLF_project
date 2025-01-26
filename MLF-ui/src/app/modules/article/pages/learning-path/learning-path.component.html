@@ -51,7 +51,15 @@
         </button>
         <ul class="topics-list">
           <!-- Отображение тем, привязанных к текущему Learning Path -->
-          <li *ngFor="let topic of path.topics">{{ topic.name }}</li>
+          <li *ngFor="let topic of path.topics">
+            <a
+              (click)="onTopicClick(topic.id)"
+              class="topic-link"
+              title="View articles for this topic"
+            >
+              {{ topic.name }}
+            </a>
+          </li>
         </ul>
 
         <!-- Добавление новой темы -->
