@@ -1,15 +1,16 @@
 import {Component, OnInit} from '@angular/core';
 import {ArticlesService} from "../../../../services/services/articles.service";
-import {Router} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {ArticleResponse} from "../../../../services/models/article-response";
 import {NgForOf, NgIf} from "@angular/common";
-import {BubbleChartModule,  NgxChartsModule} from "@swimlane/ngx-charts";
+import {BubbleChartModule, NgxChartsModule} from "@swimlane/ngx-charts";
 import {Article} from "../../../../services/models/article";
 import {
   AttachDialogComponentComponent
 } from "../../components/attach-dialog-component/attach-dialog-component.component";
 import {TopicContollerService} from "../../../../services/services/topic-contoller.service";
 import {MatDialog} from "@angular/material/dialog";
+
 @Component({
   selector: 'app-article-list',
   standalone: true,
@@ -29,13 +30,23 @@ export class ArticleListComponent implements OnInit {
 
   constructor(private articleService: ArticlesService,
               private dialog: MatDialog,
+              private route: ActivatedRoute,
               private topicService: TopicContollerService,
               private router: Router) {
   }
 
+
   ngOnInit(): void {
-    this.findAllArticles();
+    this.route.queryParams.subscribe(params => {
+      const topicId = params['topicId'];
+      if (topicId) {
+        this.findAllArticlesByTopic(topicId);
+      } else {
+        this.findAllArticles();
+      }
+    });
   }
+
 
   private findAllArticles() {
     this.articleService.getArticles()
@@ -45,6 +56,17 @@ export class ArticleListComponent implements OnInit {
         }
       });
   }
+
+  private findAllArticlesByTopic(topicId: number) {
+    this.articleService.getArticlesByTopic({topicId})
+      .subscribe({
+        next: (article) => {
+          this.articleResponse = article
+        }
+      })
+  }
+
+
   archiveArticle(articleId: number | undefined): void {
     if (!articleId) {
       console.error('Error: article ID is missing or invalid');
@@ -85,13 +107,14 @@ export class ArticleListComponent implements OnInit {
       },
     });
   }
+
   attachArticleToTopic(articleId: number, topicId: number): void {
-    const body = { [topicId]: [articleId] }; // Формат запроса
+    const body = {[topicId]: [articleId]}; // Формат запроса
     if (!articleId) {
       console.error('Error: Article ID is undefined');
       return;
     }
-    this.topicService.assignArticlesToTopics({ body }).subscribe({
+    this.topicService.assignArticlesToTopics({body}).subscribe({
       next: () => {
         console.log(`Article ${articleId} attached to topic ${topicId}`);
         alert('Article successfully attached to the topic!');
@@ -102,10 +125,11 @@ export class ArticleListComponent implements OnInit {
       },
     });
   }
+
   openAttachDialog(article: Article): void {
     const dialogRef = this.dialog.open(AttachDialogComponentComponent, {
       width: '400px',
-      data: { article },
+      data: {article},
     });
 
     dialogRef.afterClosed().subscribe((selectedTopicId: number) => {
