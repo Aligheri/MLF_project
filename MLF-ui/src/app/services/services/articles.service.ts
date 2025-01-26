@@ -24,6 +24,8 @@ import { getArchivedArticles } from '../fn/articles/get-archived-articles';
 import { GetArchivedArticles$Params } from '../fn/articles/get-archived-articles';
 import { getArticles } from '../fn/articles/get-articles';
 import { GetArticles$Params } from '../fn/articles/get-articles';
+import { getArticlesByTopic } from '../fn/articles/get-articles-by-topic';
+import { GetArticlesByTopic$Params } from '../fn/articles/get-articles-by-topic';
 
 @Injectable({ providedIn: 'root' })
 export class ArticlesService extends BaseService {
@@ -103,6 +105,31 @@ export class ArticlesService extends BaseService {
   createMinimalArticle(params: CreateMinimalArticle$Params, context?: HttpContext): Observable<ArticleResponse> {
     return this.createMinimalArticle$Response(params, context).pipe(
       map((r: StrictHttpResponse<ArticleResponse>): ArticleResponse => r.body)
+    );
+  }
+
+  /** Path part for operation `getArticlesByTopic()` */
+  static readonly GetArticlesByTopicPath = '/articles/{topicId}/articles';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getArticlesByTopic()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getArticlesByTopic$Response(params: GetArticlesByTopic$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<ArticleResponse>>> {
+    return getArticlesByTopic(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getArticlesByTopic$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getArticlesByTopic(params: GetArticlesByTopic$Params, context?: HttpContext): Observable<Array<ArticleResponse>> {
+    return this.getArticlesByTopic$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Array<ArticleResponse>>): Array<ArticleResponse> => r.body)
     );
   }
 

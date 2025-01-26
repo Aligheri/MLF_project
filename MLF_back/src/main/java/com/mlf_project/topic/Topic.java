@@ -15,6 +15,11 @@ import java.util.List;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@Table(
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"name", "parent_id", "learning_path_id"}
+        )
+)
 public class Topic {
 
     public Topic(String name, LearningPath learningPath, Topic parent) {

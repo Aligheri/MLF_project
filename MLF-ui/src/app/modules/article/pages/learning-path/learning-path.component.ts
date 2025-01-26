@@ -1,13 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {LearningPathControllerService} from "../../../../services/services/learning-path-controller.service";
 import {LearningPathRequest} from "../../../../services/models/learning-path-request";
 import {LearningPathResponse} from "../../../../services/models/learning-path-response";
 import {CreateOrUpdateTopic$Params} from "../../../../services/fn/topic-contoller/create-or-update-topic";
 import {TopicContollerService} from "../../../../services/services/topic-contoller.service";
 import {ArticlesService} from "../../../../services/services/articles.service";
-import {ArticleRequest} from "../../../../services/models/article-request";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-learning-path',
@@ -22,16 +22,15 @@ export class LearningPathComponent implements OnInit {
   articles: any[] = [];
 
 
-
-
   constructor(private learningPathService: LearningPathControllerService,
               private topicService: TopicContollerService,
-              private articleService: ArticlesService) {
+              private articleService: ArticlesService,
+              private router: Router
+  ) {
   }
 
   ngOnInit(): void {
     this.loadLearningPaths();
-
   }
 
   loadLearningPaths(): void {
@@ -42,8 +41,6 @@ export class LearningPathComponent implements OnInit {
           topics: [],
           newTopicPath: '',
         }));
-
-        // После загрузки всех Learning Paths, загрузить темы для каждого из них
         this.learningPaths.forEach((path) => {
           this.loadAllAttachedTopics(path.id);
         });
@@ -133,8 +130,8 @@ export class LearningPathComponent implements OnInit {
 
       this.topicService.createOrUpdateTopic(params).subscribe({
         next: () => {
-          learningPath.newTopicPath = ''; // Очистка поля после добавления
-          this.loadAllAttachedTopics(learningPathId); // Перезагрузка тем
+          learningPath.newTopicPath = '';
+          this.loadAllAttachedTopics(learningPathId);
         },
         error: (error) => console.error('Error creating topic path:', error),
       });
@@ -154,5 +151,9 @@ export class LearningPathComponent implements OnInit {
         console.error('Error loading topics:', error);
       },
     });
+  }
+
+  onTopicClick(topicId: number): void {
+    this.router.navigate(['article/my-articles'], { queryParams: { topicId } });
   }
 }

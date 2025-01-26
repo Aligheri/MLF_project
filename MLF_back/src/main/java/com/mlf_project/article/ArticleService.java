@@ -9,6 +9,7 @@ import com.mlf_project.topic.TopicRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -32,19 +33,6 @@ public class ArticleService {
         this.userRepository = userRepository;
         this.topicRepository = topicRepository;
     }
-
-    //    public Article saveArticle(ArticleRequest request, Authentication connectedUser) {
-//        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
-//        User user = userRepository.findById(userDetails.getId())
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//        Article article = articleMapper.toArticle(request);
-//        article.setOwner(user);
-//        if (article.getPriority() == null) {
-//            article.setPriority(3);
-//        }
-//        article.setCreatedAt(LocalDateTime.now());
-//        return articleRepository.save(article);
-//    }
 
     public Article saveArticle(ArticleRequest request, Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
@@ -93,20 +81,15 @@ public class ArticleService {
         return articleRepository.findAll(ArticleSpecification.withOwnerId(user.getId()));
     }
 
+    public List<Article> getArticlesByTopic(Long topicId, Authentication connectedUSer) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUSer.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-//    public Map<String, List<ArticleResponse>> getArticlesGroupedByTopic(Authentication connectedUser) {
-//        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
-//        User user = userRepository.findById(userDetails.getId())
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//
-//        List<Article> articles = articleRepository.findAll(ArticleSpecification.withOwnerId(user.getId()));
-//
-//        return articles.stream()
-//                .collect(Collectors.groupingBy(
-//                        Article::getTopic,
-//                        Collectors.mapping(articleMapper::toArticleResponse, Collectors.toList())
-//                ));
-//    }
+        Specification<Article> spec = ArticleSpecification.byTopicIdAndUserId(topicId, user.getId());
+
+        return articleRepository.findAll(spec);
+    }
 
     public void deleteArticle(Long id, Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
@@ -120,7 +103,6 @@ public class ArticleService {
         }
         articleRepository.delete(article);
     }
-
 
     public void archiveArticle(Long id, Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
@@ -148,23 +130,11 @@ public class ArticleService {
         articleRepository.deleteAll(articles);
     }
 
-//    public void updatePriorities(List<ArticlePriorityUpdateRequest> updates) {
-//        for (ArticlePriorityUpdateRequest update : updates) {
-//            Article article = articleRepository.findById(update.getId())
-//                    .orElseThrow(() -> new EntityNotFoundException("Article not found with ID: " + update.getId()));
-//            article.setPriority(update.getPriority());
-//            articleRepository.save(article);
-//        }
-//    }
-
     public List<Article> getAllArchivedArticles(Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
         User user = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        List<Article> archivedArticles = articleRepository.findAll(ArticleSpecification.withOwnerIdAndArchived(user.getId(), true));
-
-        return archivedArticles;
+        return articleRepository.findAll(ArticleSpecification.withOwnerIdAndArchived(user.getId(), true));
     }
 }
-

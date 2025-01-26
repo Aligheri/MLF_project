@@ -1,11 +1,15 @@
-<h3>My articles</h3>
-<hr/>
+<h3>Articles</h3>
+<hr />
 <div class="d-flex justify-content-start gap-2 flex-wrap">
-  <div *ngFor="let article of articleResponse" class="article-item">
+  <div
+    *ngFor="let article of articleResponse"
+    class="article-item"
+  >
     <h3 class="article-title">{{ article.title }}</h3>
-    <p class="article-topic">{{ article.topicId }}</p>
+    <p class="article-topic">
+      Topic ID: {{ article.topicId ? article.topicId : 'Not assigned' }}
+    </p>
     <div class="d-flex gap-2">
-
       <a [href]="article.url" target="_blank" class="btn btn-primary">
         <i class="fas fa-book"></i> Read on..
       </a>
@@ -15,8 +19,8 @@
       </button>
 
       <button
-        (click)="deleteArticle(article.id)"
         class="btn btn-danger"
+        (click)="deleteArticle(article.id)"
         title="Delete this article"
       >
         <i class="fas fa-trash"></i> Delete

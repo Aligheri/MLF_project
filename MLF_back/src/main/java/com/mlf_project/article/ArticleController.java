@@ -23,7 +23,6 @@ public class ArticleController {
     private final ArticleService articleService;
     private final ArticleMapper articleMapper;
 
-
     //Tested
     @PostMapping
     public ResponseEntity<ArticleResponse> createArticle(@Valid @RequestBody ArticleRequest articleRequest, Authentication authentication) {
@@ -47,12 +46,13 @@ public class ArticleController {
         return ResponseEntity.ok(articles);
     }
 
-    //Tested
-//    @GetMapping("/my-articles-by-topic")
-//    public ResponseEntity<Map<String, List<ArticleResponse>>> getArticlesGroupedByTopic(Authentication authentication) {
-//        Map<String, List<ArticleResponse>> articlesGroupedByTopic = articleService.getArticlesGroupedByTopic(authentication);
-//        return ResponseEntity.ok(articlesGroupedByTopic);
-//    }
+    @GetMapping("/{topicId}/articles")
+    public ResponseEntity<List<ArticleResponse>> getArticlesByTopic(@PathVariable Long topicId, Authentication authentication) {
+        List<ArticleResponse> articles = articleService.getArticlesByTopic(topicId, authentication).stream()
+                .map(articleMapper::toArticleResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(articles);
+    }
 
     //Tested
     @DeleteMapping("/{id}")
@@ -83,10 +83,5 @@ public class ArticleController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/update-priorities")
-//    public ResponseEntity<Void> updateArticlePriorities(@RequestBody List<ArticlePriorityUpdateRequest> updates) {
-//        articleService.updatePriorities(updates);
-//        return ResponseEntity.ok().build();
-//    }
 
 }

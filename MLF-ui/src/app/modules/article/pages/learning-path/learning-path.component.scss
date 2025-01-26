@@ -96,6 +96,15 @@
             margin-bottom: 5px;
             border-radius: 4px;
           }
+          .topic-link {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+          }
+
+          .topic-link:hover {
+            color: darkblue;
+          }
         }
 
         .add-topic {
