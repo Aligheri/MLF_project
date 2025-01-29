@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {RouterLink} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
+import {AuthenticationControllerService} from "../../../../services/services/authentication-controller.service";
+import {TokenService} from "../../../../services/token/token.service";
 
 @Component({
   selector: 'app-navbar',
@@ -10,9 +12,14 @@ import {RouterLink} from "@angular/router";
   ],
   styleUrl: './navbar.component.scss'
 })
-export class NavbarComponent implements OnInit{
+export class NavbarComponent implements OnInit {
+  token: string = '';
+
+  constructor(private service: AuthenticationControllerService, private tokenService: TokenService, private router: Router) {
+  }
 
   ngOnInit(): void {
+    this.token = this.tokenService.token;
     const linkColor = document.querySelectorAll('.nav-link');
     linkColor.forEach(link => {
       if (window.location.href.endsWith(link.getAttribute('href') || '')) {
@@ -25,9 +32,15 @@ export class NavbarComponent implements OnInit{
     });
   }
 
-  logout() {
-    sessionStorage.removeItem('token');
-    window.location.reload();
+  logout(token: string) {
+    this.service.logout({Authorization: token}).subscribe({
+      next: () => {
+        sessionStorage.removeItem('token');
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Logout failed', error);
+      }
+    });
   }
-
 }
