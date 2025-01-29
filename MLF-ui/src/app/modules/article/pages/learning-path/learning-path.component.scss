@@ -129,6 +129,26 @@
         .btn {
           margin-left: 10px;
         }
+
+        .btn.visualization-btn {
+          background-color: #4caf50;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          padding: 10px 20px;
+          font-size: 14px;
+          cursor: pointer;
+          margin-left: 10px;
+          transition: background-color 0.3s ease;
+        }
+
+        .btn.visualization-btn:hover {
+          background-color: #45a049;
+        }
+
+        .btn.visualization-btn:active {
+          background-color: #3e8e41;
+        }
       }
     }
   }

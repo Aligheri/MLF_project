@@ -154,6 +154,10 @@ export class LearningPathComponent implements OnInit {
   }
 
   onTopicClick(topicId: number): void {
-    this.router.navigate(['article/my-articles'], { queryParams: { topicId } });
+    this.router.navigate(['article/my-articles'], {queryParams: {topicId}});
+  }
+
+  onVisualizationClick(learningPathId: number): void {
+    this.router.navigate(['article/visualize-by-learningPath'], {queryParams: {learningPathId}});
   }
 }
