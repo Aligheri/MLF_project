@@ -195,7 +195,7 @@ public class AuthenticationService {
 
         String jwt = jwtUtils.generateAccessTokenFromUserDetails(userDetails, issuerId, userFingerprintHash);
 
-         jwtUtils.createCookie(response, "fingerprint", userFingerprint, 24 * 60 * 60, true, false);
+        jwtUtils.createCookie(response, "fingerprint", userFingerprint, 24 * 60 * 60, true, false);
 
         String cipheredJwt;
         try {
@@ -226,7 +226,7 @@ public class AuthenticationService {
                     String token;
                     String cipheredToken;
                     try {
-                        token = jwtUtils.generateAccessTokenFromUsername(refreshToken.getUser().getUsername(), issuerId,"1212");
+                        token = jwtUtils.generateAccessTokenFromUsername(refreshToken.getUser().getUsername(), issuerId, "1212");
                     } catch (NoSuchAlgorithmException e) {
                         throw new RuntimeException(e);
                     }
@@ -241,15 +241,30 @@ public class AuthenticationService {
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken, "Refresh token is not in database!"));
     }
 
-    public MessageResponse logout(String jwtInHex) {
+    public MessageResponse logout(String jwtInHex, HttpServletResponse response, String cookieName) {
         MessageResponse messageResponse;
         try {
+            deleteCookie(response, "fingerprint");
             tokenRevoker.revokeToken(jwtInHex);
             messageResponse = new MessageResponse("Token successfully revoked!");
         } catch (Exception e) {
             logger.warn("Error during token validation", e);
             messageResponse = new MessageResponse("Error during token validation");
         }
+        return messageResponse;
+    }
+
+    public MessageResponse isTokenExpired(String token) throws GeneralSecurityException {
+        MessageResponse messageResponse;
+
+        String decipheredToken = tokenCipher.decipherToken(token);
+
+        if (jwtUtils.isTokenExpired(decipheredToken)) {
+            messageResponse = new MessageResponse("Token has been expired");
+        } else {
+            messageResponse = new MessageResponse("Token is NOT expired");
+        }
+
         return messageResponse;
     }
 
