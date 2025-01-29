@@ -52,11 +52,11 @@ public class JwtUtils {
         return claimsResolver.apply(claims);
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
@@ -74,12 +74,12 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateAccessTokenFromUserDetails(UserDetails userDetails, String issuerId,String userFingerprintHash ) {
-        return generateToken( userDetails.getUsername(), issuerId, userFingerprintHash);
+    public String generateAccessTokenFromUserDetails(UserDetails userDetails, String issuerId, String userFingerprintHash) {
+        return generateToken(userDetails.getUsername(), issuerId, userFingerprintHash);
     }
 
-    public String generateAccessTokenFromUsername(String username, String issuerId,String userFingerprintHash) throws NoSuchAlgorithmException {
-        return generateToken( username, issuerId,userFingerprintHash);
+    public String generateAccessTokenFromUsername(String username, String issuerId, String userFingerprintHash) throws NoSuchAlgorithmException {
+        return generateToken(username, issuerId, userFingerprintHash);
     }
 
     public String hashFingerprint(String userFingerprint) throws NoSuchAlgorithmException {
@@ -99,7 +99,7 @@ public class JwtUtils {
 
 
         response.addHeader("Set-Cookie", String.format(
-                "%s=%s; Path=%s; Max-Age=%d; HttpOnly=%s; Secure=%s; SameSite=None",
+                "%s=%s; Path=%s; Max-Age=%d; HttpOnly=%s; Secure=%s; SameSite=Lax",
                 cookie.getName(),
                 cookie.getValue(),
                 cookie.getPath(),
@@ -111,14 +111,14 @@ public class JwtUtils {
         System.out.println("Set-Cookie header: " + cookie);
     }
 
-    public String createUserFingerprint(){
+    public String createUserFingerprint() {
         SecureRandom secureRandom = new SecureRandom();
         byte[] randomFgp = new byte[50];
         secureRandom.nextBytes(randomFgp);
         return Hex.encodeHexString(randomFgp);
     }
 
-    private String generateToken( String username, String issuerId, String userFingerprintHash) {
+    private String generateToken(String username, String issuerId, String userFingerprintHash) {
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
         c.add(Calendar.HOUR, 24);
@@ -138,6 +138,7 @@ public class JwtUtils {
                 .withHeader(headerClaims)
                 .sign(algorithm);
     }
+
     public Boolean validateToken(String authToken, HttpServletRequest request) throws GeneralSecurityException {
         String token = authToken.trim();
         logger.info("Validating token: " + token);
@@ -175,7 +176,6 @@ public class JwtUtils {
                 byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
                 String userFingerprintHash = DatatypeConverter.printHexBinary(userFingerprintDigest).toLowerCase();
 
-
                 logger.info("Verifying userFingerprintHash: " + userFingerprintHash);
 
                 JWTVerifier verifier = require(HMAC256(this.SECRET_KEY))
@@ -202,6 +202,7 @@ public class JwtUtils {
             return false;
         }
     }
+
     public String getUsernameFromJwtToken(String token) {
         try {
             String decipheredToken = tokenCipher.decipherToken(token);
