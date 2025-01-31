@@ -41,7 +41,7 @@ export class LoginComponent {
         console.log('Parsed Body:', response);
 
         // let token: string | undefined = responseBody?.token;
-      let token =  this.tokenService.token = response.token as string;
+        const token = response.token;
         if (token) {
           this.tokenService.token = token;
           console.log('Token found and stored.');

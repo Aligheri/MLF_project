@@ -15,7 +15,7 @@ import {TokenService} from "../../../../services/token/token.service";
 export class NavbarComponent implements OnInit {
   token: string = '';
 
-  constructor(private service: AuthenticationControllerService, private tokenService: TokenService, private router: Router) {
+  constructor(private service: AuthenticationControllerService, private tokenService: TokenService) {
   }
 
   ngOnInit(): void {
@@ -36,7 +36,7 @@ export class NavbarComponent implements OnInit {
     this.service.logout({Authorization: token}).subscribe({
       next: () => {
         sessionStorage.removeItem('token');
-        this.router.navigate(['/login']);
+        window.location.reload();
       },
       error: (error) => {
         console.error('Logout failed', error);
