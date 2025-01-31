@@ -41,7 +41,6 @@ public class SecurityConfiguration extends SecurityConfigurerAdapter<DefaultSecu
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(STATELESS)
                 )
-//                .httpBasic(withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("api/auth/**",
                                 "/auth/**",
