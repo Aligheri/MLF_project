@@ -57,7 +57,8 @@ public class ApplicationConfig {
                 ORIGIN,
                 CONTENT_TYPE,
                 ACCEPT,
-                AUTHORIZATION
+                AUTHORIZATION,
+                "Set-Cookie"
         ));
         config.setAllowedMethods(Arrays.asList(
                 "GET",
@@ -71,4 +72,3 @@ public class ApplicationConfig {
         return new CorsFilter(source);
     }
 }
-

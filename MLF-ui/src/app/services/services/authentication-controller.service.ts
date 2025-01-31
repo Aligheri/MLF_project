@@ -22,11 +22,38 @@ import { refreshTokens } from '../fn/authentication-controller/refresh-tokens';
 import { RefreshTokens$Params } from '../fn/authentication-controller/refresh-tokens';
 import { registerUser } from '../fn/authentication-controller/register-user';
 import { RegisterUser$Params } from '../fn/authentication-controller/register-user';
+import { validateToken } from '../fn/authentication-controller/validate-token';
+import { ValidateToken$Params } from '../fn/authentication-controller/validate-token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationControllerService extends BaseService {
   constructor(config: ApiConfiguration, http: HttpClient) {
     super(config, http);
+  }
+
+  /** Path part for operation `validateToken()` */
+  static readonly ValidateTokenPath = '/api/auth/validate-token';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `validateToken()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  validateToken$Response(params: ValidateToken$Params, context?: HttpContext): Observable<StrictHttpResponse<MessageResponse>> {
+    return validateToken(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `validateToken$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  validateToken(params: ValidateToken$Params, context?: HttpContext): Observable<MessageResponse> {
+    return this.validateToken$Response(params, context).pipe(
+      map((r: StrictHttpResponse<MessageResponse>): MessageResponse => r.body)
+    );
   }
 
   /** Path part for operation `registerUser()` */
@@ -125,7 +152,9 @@ export class AuthenticationControllerService extends BaseService {
    */
   loginUser(params: LoginUser$Params, context?: HttpContext): Observable<AuthenticationResponse> {
     return this.loginUser$Response(params, context).pipe(
-      map((r: StrictHttpResponse<AuthenticationResponse>): AuthenticationResponse => r.body)
+      map((r: StrictHttpResponse<AuthenticationResponse>): AuthenticationResponse => r.body,{
+        withCredentials: true
+      })
     );
   }
 

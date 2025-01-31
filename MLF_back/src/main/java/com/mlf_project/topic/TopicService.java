@@ -1,6 +1,5 @@
 package com.mlf_project.topic;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mlf_project.article.Article;
 import com.mlf_project.article.ArticleRepository;
 import com.mlf_project.entities.User;
@@ -135,13 +134,16 @@ public class TopicService {
         Topic parentTopic = null;
 
         for (String currentSegment : pathSegments) {
-            // Проверяем существование топика
             Optional<Topic> optionalTopic = topicRepository.findByNameAndParentAndLearningPath(currentSegment, parentTopic, learningPath);
 
             if (optionalTopic.isPresent()) {
-                parentTopic = optionalTopic.get(); // Переходим к следующему уровню
+                parentTopic = optionalTopic.get();
             } else {
-                // Создаем новый топик
+                Optional<Topic> conflictingTopic = topicRepository.findByNameAndLearningPath(currentSegment, learningPath);
+                if (conflictingTopic.isPresent() && parentTopic == null) {
+                    throw new IllegalArgumentException("A root-level topic with this name already exists");
+                }
+
                 Topic newTopic = new Topic(currentSegment, learningPath, parentTopic);
                 newTopic.setOwner(user);
                 topicRepository.save(newTopic);
@@ -151,6 +153,7 @@ public class TopicService {
 
         return parentTopic;
     }
+
 
     public List<Topic> getAllTopics(Authentication connectedUser) {
         UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
@@ -189,30 +192,37 @@ public class TopicService {
         }
     }
 
-    public String getTopicTreeJson(Long learningPathId) {
-        List<Topic> rootTopics = topicRepository.findByLearningPathIdAndParentIsNull(learningPathId);
-        List<Map<String, Object>> tree = rootTopics.stream()
-                .map(this::convertTopicToTree)
-                .collect(Collectors.toList());
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(tree);
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating JSON", e);
-        }
-    }
+//    public String getTopicTreeJson(Long learningPathId) {
+//        List<Topic> rootTopics = topicRepository.findByLearningPathIdAndParentIsNull(learningPathId);
+//        List<Map<String, Object>> tree = rootTopics.stream()
+//                .map(this::convertTopicToTree)
+//                .collect(Collectors.toList());
+//        try {
+//            ObjectMapper mapper = new ObjectMapper();
+//            return mapper.writeValueAsString(tree);
+//        } catch (Exception e) {
+//            throw new RuntimeException("Error generating JSON", e);
+//        }
+//    }
 
-    private Map<String, Object> convertTopicToTree(Topic topic) {
+    public Map<String, Object> convertTopicToTree(Topic topic) {
         Map<String, Object> node = new HashMap<>();
-        node.put("name", topic.getName());
-        node.put("articles", topic.getArticles()
-                .stream()
-                .map(Article::getTitle)
-                .collect(Collectors.toList()));
+        node.put("name", topic.getName()); // Название темы
         node.put("children", topic.getChildren()
                 .stream()
                 .map(this::convertTopicToTree)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList())); // Рекурсивно добавляем вложенные темы
         return node;
     }
+
+    public Topic findRootTopicByLearningPath(Long learningPathId) {
+
+        LearningPath learningPath = learningPathRepository.findById(learningPathId)
+                .orElseThrow(() -> new EntityNotFoundException("LearningPath с ID " + learningPathId + " не найден."));
+
+        return topicRepository.findByLearningPathAndParentIsNull(learningPath)
+                .orElseThrow(() -> new EntityNotFoundException("Корневая тема для LearningPath с ID " + learningPathId + " не найдена."));
+    }
+
+
 }

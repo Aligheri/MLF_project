@@ -52,11 +52,11 @@ public class JwtUtils {
         return claimsResolver.apply(claims);
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
@@ -74,12 +74,12 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateAccessTokenFromUserDetails(UserDetails userDetails, String issuerId,String userFingerprintHash ) {
-        return generateToken( userDetails.getUsername(), issuerId, userFingerprintHash);
+    public String generateAccessTokenFromUserDetails(UserDetails userDetails, String issuerId, String userFingerprintHash) {
+        return generateToken(userDetails.getUsername(), issuerId, userFingerprintHash);
     }
 
-    public String generateAccessTokenFromUsername(String username, String issuerId,String userFingerprintHash) throws NoSuchAlgorithmException {
-        return generateToken( username, issuerId,userFingerprintHash);
+    public String generateAccessTokenFromUsername(String username, String issuerId, String userFingerprintHash) throws NoSuchAlgorithmException {
+        return generateToken(username, issuerId, userFingerprintHash);
     }
 
     public String hashFingerprint(String userFingerprint) throws NoSuchAlgorithmException {
@@ -88,37 +88,58 @@ public class JwtUtils {
         return Hex.encodeHexString(userFingerprintDigest).toLowerCase();
     }
 
-    public void createCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+//    public void createCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+//        Cookie cookie = new Cookie(name, value);
+//
+//        cookie.setPath("/");
+//        cookie.setHttpOnly(httpOnly);
+//        cookie.setSecure(secure);
+//        cookie.setMaxAge(maxAge);
+//
+//
+//        response.addHeader("Set-Cookie", String.format(
+//                "%s=%s; Path=%s; Max-Age=%d; HttpOnly=%s; Secure=%s; SameSite=None",
+//                cookie.getName(),
+//                cookie.getValue(),
+//                cookie.getPath(),
+//                cookie.getMaxAge(),
+//                httpOnly ? "true" : "false",
+//                secure ? "true" : "false"
+//        ));
+//
+//        System.out.println("Set-Cookie header: " + cookie);
+//    }
+public void createCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+    StringBuilder cookieBuilder = new StringBuilder();
+    cookieBuilder.append(name).append("=").append(value).append("; ");
+    cookieBuilder.append("Path=/; ");
+    cookieBuilder.append("Max-Age=").append(maxAge).append("; ");
 
-        Cookie cookie = new Cookie(name, value);
-
-        cookie.setPath("/");
-        cookie.setHttpOnly(httpOnly);
-        cookie.setSecure(secure);
-        cookie.setMaxAge(maxAge);
-
-
-        response.addHeader("Set-Cookie", String.format(
-                "%s=%s; Path=%s; Max-Age=%d; HttpOnly=%s; Secure=%s; SameSite=None",
-                cookie.getName(),
-                cookie.getValue(),
-                cookie.getPath(),
-                cookie.getMaxAge(),
-                httpOnly ? "true" : "false",
-                secure ? "true" : "false"
-        ));
-
-        System.out.println("Set-Cookie header: " + cookie);
+    if (httpOnly) {
+        cookieBuilder.append("HttpOnly; ");
+    }
+    if (secure) {
+        cookieBuilder.append("Secure; ");
+        // Если secure true, можно использовать SameSite=None
+        cookieBuilder.append("SameSite=None");
+    } else {
+        // Если secure false (т.е. без HTTPS), лучше использовать Lax или Strict.
+        cookieBuilder.append("SameSite=Lax");
     }
 
-    public String createUserFingerprint(){
+    String cookieHeader = cookieBuilder.toString();
+    response.addHeader("Set-Cookie", cookieHeader);
+    System.out.println("Set-Cookie header: " + cookieHeader);
+}
+
+    public String createUserFingerprint() {
         SecureRandom secureRandom = new SecureRandom();
         byte[] randomFgp = new byte[50];
         secureRandom.nextBytes(randomFgp);
         return Hex.encodeHexString(randomFgp);
     }
 
-    private String generateToken( String username, String issuerId, String userFingerprintHash) {
+    private String generateToken(String username, String issuerId, String userFingerprintHash) {
         Calendar c = Calendar.getInstance();
         Date now = c.getTime();
         c.add(Calendar.HOUR, 24);
@@ -138,6 +159,7 @@ public class JwtUtils {
                 .withHeader(headerClaims)
                 .sign(algorithm);
     }
+
     public Boolean validateToken(String authToken, HttpServletRequest request) throws GeneralSecurityException {
         String token = authToken.trim();
         logger.info("Validating token: " + token);
@@ -175,7 +197,6 @@ public class JwtUtils {
                 byte[] userFingerprintDigest = digest.digest(userFingerprint.getBytes(StandardCharsets.UTF_8));
                 String userFingerprintHash = DatatypeConverter.printHexBinary(userFingerprintDigest).toLowerCase();
 
-
                 logger.info("Verifying userFingerprintHash: " + userFingerprintHash);
 
                 JWTVerifier verifier = require(HMAC256(this.SECRET_KEY))
@@ -202,6 +223,7 @@ public class JwtUtils {
             return false;
         }
     }
+
     public String getUsernameFromJwtToken(String token) {
         try {
             String decipheredToken = tokenCipher.decipherToken(token);

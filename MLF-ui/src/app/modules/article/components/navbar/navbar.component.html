@@ -33,7 +33,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="visualize-by-topic">
+          <a class="nav-link" routerLink="visualize-by-learningPath">
             <i class="fas fa-list-check"></i>&nbsp;Visualization
           </a>
         </li>
@@ -43,7 +43,9 @@
         <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
         <span>Welcome to</span>
         <span class="text-capitalize fw-bold">MLF</span>
-        <button class="btn btn-link" type="submit" (click)="logout()"><i class="fas fa-door-open"></i></button>
+        <button class="btn btn-link" type="button" (click)="logout(token)">
+          <i class="fas fa-door-open"></i>
+        </button>
       </form>
     </div>
   </div>

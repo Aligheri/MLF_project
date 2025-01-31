@@ -17,8 +17,8 @@ import { getAllattachedTopics } from '../fn/topic-contoller/get-allattached-topi
 import { GetAllattachedTopics$Params } from '../fn/topic-contoller/get-allattached-topics';
 import { getAllTopics } from '../fn/topic-contoller/get-all-topics';
 import { GetAllTopics$Params } from '../fn/topic-contoller/get-all-topics';
-import { getTopicTreeJson } from '../fn/topic-contoller/get-topic-tree-json';
-import { GetTopicTreeJson$Params } from '../fn/topic-contoller/get-topic-tree-json';
+import { getTopicTree } from '../fn/topic-contoller/get-topic-tree';
+import { GetTopicTree$Params } from '../fn/topic-contoller/get-topic-tree';
 import { Topic } from '../models/topic';
 import { TopicResponse } from '../models/topic-response';
 
@@ -103,31 +103,6 @@ export class TopicContollerService extends BaseService {
     );
   }
 
-  /** Path part for operation `getTopicTreeJson()` */
-  static readonly GetTopicTreeJsonPath = '/api/topics/{learningPathId}/tree';
-
-  /**
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getTopicTreeJson()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getTopicTreeJson$Response(params: GetTopicTreeJson$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
-    return getTopicTreeJson(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getTopicTreeJson$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getTopicTreeJson(params: GetTopicTreeJson$Params, context?: HttpContext): Observable<string> {
-    return this.getTopicTreeJson$Response(params, context).pipe(
-      map((r: StrictHttpResponse<string>): string => r.body)
-    );
-  }
-
   /** Path part for operation `getAllTopics()` */
   static readonly GetAllTopicsPath = '/api/topics/topics';
 
@@ -150,6 +125,43 @@ export class TopicContollerService extends BaseService {
   getAllTopics(params?: GetAllTopics$Params, context?: HttpContext): Observable<Array<TopicResponse>> {
     return this.getAllTopics$Response(params, context).pipe(
       map((r: StrictHttpResponse<Array<TopicResponse>>): Array<TopicResponse> => r.body)
+    );
+  }
+
+  /** Path part for operation `getTopicTree()` */
+  static readonly GetTopicTreePath = '/api/topics/learning-path/{id}/topics/tree';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `getTopicTree()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getTopicTree$Response(params: GetTopicTree$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
+    return getTopicTree(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `getTopicTree$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  getTopicTree(params: GetTopicTree$Params, context?: HttpContext): Observable<{
+[key: string]: {
+};
+}> {
+    return this.getTopicTree$Response(params, context).pipe(
+      map((r: StrictHttpResponse<{
+[key: string]: {
+};
+}>): {
+[key: string]: {
+};
+} => r.body)
     );
   }
 

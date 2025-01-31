@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -51,9 +52,9 @@ public class TopicContoller {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{learningPathId}/tree")
-    public ResponseEntity<String> getTopicTreeJson(@PathVariable Long learningPathId) {
-        String treeJson = topicService.getTopicTreeJson(learningPathId);
-        return ResponseEntity.ok(treeJson);
+    @GetMapping("/learning-path/{id}/topics/tree")
+    public ResponseEntity<Map<String, Object>> getTopicTree(@PathVariable Long id) {
+        Topic rootTopic = topicService.findRootTopicByLearningPath(id);
+        return ResponseEntity.of(Optional.ofNullable(topicService.convertTopicToTree(rootTopic)));
     }
 }

@@ -79,10 +79,8 @@ export class ArticleListComponent implements OnInit {
       next: () => {
         console.log(`Article ${articleId} archived successfully`);
 
-        // Удаляем статью из текущего списка articleResponse
         this.articleResponse = this.articleResponse.filter(article => article.id !== articleId);
 
-        // Перенаправляем пользователя на страницу 'Archived Articles'
         this.router.navigate(['article/archived-articles']);
       },
       error: (err) => console.error('Error archiving article:', err)

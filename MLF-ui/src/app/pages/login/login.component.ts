@@ -45,7 +45,14 @@ export class LoginComponent {
         if (token) {
           this.tokenService.token = token;
           console.log('Token found and stored.');
-          this.router.navigate(['article']);
+
+          this.router.navigate(['article']).then((success) => {
+            if (success) {
+              console.log('✅ Navigation to "article" successful.');
+            } else {
+              console.error('❌ Navigation to "article" failed.');
+            }
+          });
         } else {
           this.errorMsg.push('Token not found in response.');
           console.log('Token not found in response.');

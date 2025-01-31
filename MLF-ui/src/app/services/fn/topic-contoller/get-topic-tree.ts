@@ -7,14 +7,17 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 
-export interface GetTopicTreeJson$Params {
-  learningPathId: number;
+export interface GetTopicTree$Params {
+  id: number;
 }
 
-export function getTopicTreeJson(http: HttpClient, rootUrl: string, params: GetTopicTreeJson$Params, context?: HttpContext): Observable<StrictHttpResponse<string>> {
-  const rb = new RequestBuilder(rootUrl, getTopicTreeJson.PATH, 'get');
+export function getTopicTree(http: HttpClient, rootUrl: string, params: GetTopicTree$Params, context?: HttpContext): Observable<StrictHttpResponse<{
+[key: string]: {
+};
+}>> {
+  const rb = new RequestBuilder(rootUrl, getTopicTree.PATH, 'get');
   if (params) {
-    rb.path('learningPathId', params.learningPathId, {});
+    rb.path('id', params.id, {});
   }
 
   return http.request(
@@ -22,9 +25,12 @@ export function getTopicTreeJson(http: HttpClient, rootUrl: string, params: GetT
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<string>;
+      return r as StrictHttpResponse<{
+      [key: string]: {
+      };
+      }>;
     })
   );
 }
 
-getTopicTreeJson.PATH = '/api/topics/{learningPathId}/tree';
+getTopicTree.PATH = '/api/topics/learning-path/{id}/topics/tree';

@@ -316,7 +316,7 @@ export class RequestBuilder {
     accept?: string;
 
     /** The expected response type */
-    responseType?: 'json' | 'text' | 'blob' | 'arraybuffer';
+    responseType?: 'json' | 'text' | 'json' | 'arraybuffer';
 
     /** Whether to report progress on uploads / downloads */
     reportProgress?: boolean;

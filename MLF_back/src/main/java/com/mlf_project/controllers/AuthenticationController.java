@@ -18,13 +18,13 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 
 @RequestMapping("/api/auth")
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "*", maxAge = 86400)
-@CrossOrigin(origins = "http://localhost:4200/*", allowCredentials = "true",maxAge = 86400)
+@CrossOrigin(origins = "http://localhost:4200/*", allowCredentials = "true", maxAge = 86400)
 @RestController
 public class AuthenticationController {
 
@@ -35,8 +35,9 @@ public class AuthenticationController {
     @Value(value = "${issuer_id}")
     private transient String issuerId;
 
+
     @PostMapping("/register")
-    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody RegisterRequest registerRequest) throws NoSuchAlgorithmException, MessagingException {
+    public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody RegisterRequest registerRequest) throws MessagingException {
         logger.info("Attempting to register user: {}", registerRequest.getUsername());
         MessageResponse messageResponse = authenticationService.registerUser(registerRequest);
         if (messageResponse.getMessage().startsWith("Error:")) {
@@ -49,39 +50,21 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws  NoSuchAlgorithmException {
+    public ResponseEntity<AuthenticationResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws NoSuchAlgorithmException {
+        logger.info("Attempting to authenticate user: {}", loginRequest.getUsername());
+        return ResponseEntity.ok(authenticationService.authenticateUser(loginRequest, response, issuerId));
 
-            logger.info("Attempting to authenticate user: {}", loginRequest.getUsername());
-//            AuthenticationResponse authenticationResponse = authenticationService.authenticateUser(loginRequest, response, issuerId);
-//        logger.info("User authenticated successfully: {}", loginRequest.getUsername());
-            return ResponseEntity.ok(authenticationService.authenticateUser(loginRequest, response, issuerId));
-
-//        } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
-//            logger.error("Internal server error during authentication for user: {}", loginRequest.getUsername(), e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        } catch (AuthenticationException e) {
-//            logger.warn("Authentication failed for user: {}", loginRequest.getUsername(), e);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid username or password");
-//        } catch (Exception e) {
-//            logger.error("Unexpected error during authentication for user: {}", loginRequest.getUsername(), e);
-//            return ResponseEntity.badRequest().body("An unexpected error occurred");
-//        }
-        }
-
-
-
+    }
 
     @PostMapping("/refresh")
     public ResponseEntity<RefreshTokenResponse> refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest, HttpServletResponse response) {
-            logger.info("Attempting to refresh token for user");
-//            RefreshTokenResponse tokenResponse = authenticationService.refreshToken(refreshTokenRequest, issuerId, response);
-//            logger.info("Token refreshed successfully");
-            return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest, issuerId, response));
+        logger.info("Attempting to refresh token for user");
+        return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest, issuerId, response));
     }
 
 
     @PostMapping("/logout")
-    public MessageResponse logout(@RequestHeader("Authorization") String jwt) {
+    public MessageResponse logout(@RequestHeader("Authorization") String jwt, HttpServletResponse response) {
         if (jwt != null && !jwt.isEmpty()) {
             if (jwt.startsWith("Bearer ")) {
                 jwt = jwt.substring(7);
@@ -90,7 +73,7 @@ public class AuthenticationController {
             logger.debug("Token received for logout: {}", jwt);
 
             try {
-                return authenticationService.logout(jwt);
+                return authenticationService.logout(jwt, response, "fingerprint");
             } catch (IllegalArgumentException e) {
                 logger.error("Base64 decoding error in logout method: {}", e.getMessage(), e);
                 return new MessageResponse("Error during logout: Invalid token format");
@@ -104,8 +87,31 @@ public class AuthenticationController {
     }
 
     @GetMapping("/activate-account")
-    public void confirm(@RequestParam String token) throws MessagingException, NoSuchAlgorithmException {
+    public void confirm(@RequestParam String token) throws MessagingException {
         authenticationService.activateAccount(token);
     }
 
+    @PostMapping("/validate-token")
+    public MessageResponse validateToken(@RequestBody String token) throws GeneralSecurityException {
+        return authenticationService.isTokenExpired(token);
+    }
+
+//    @PostMapping("/validate-token")
+//    public ResponseEntity<Map<String, String>> validateToken(@RequestBody String token, HttpServletRequest request) {
+//        try {
+//            boolean isValid = utils.validateToken(token, request);
+//            logger.info("Token validation result: " + isValid);
+//            logger.info(token);
+//
+//            if (isValid) {
+//                return ResponseEntity.ok(Map.of("message", "Token is valid"));
+//            } else {
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                        .body(Map.of("message", "Token is invalid or expired"));
+//            }
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Map.of("message", "Error validating token"));
+//        }
+//    }
 }
