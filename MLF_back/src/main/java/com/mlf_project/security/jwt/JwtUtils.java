@@ -88,28 +88,49 @@ public class JwtUtils {
         return Hex.encodeHexString(userFingerprintDigest).toLowerCase();
     }
 
-    public void createCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+//    public void createCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+//        Cookie cookie = new Cookie(name, value);
+//
+//        cookie.setPath("/");
+//        cookie.setHttpOnly(httpOnly);
+//        cookie.setSecure(secure);
+//        cookie.setMaxAge(maxAge);
+//
+//
+//        response.addHeader("Set-Cookie", String.format(
+//                "%s=%s; Path=%s; Max-Age=%d; HttpOnly=%s; Secure=%s; SameSite=None",
+//                cookie.getName(),
+//                cookie.getValue(),
+//                cookie.getPath(),
+//                cookie.getMaxAge(),
+//                httpOnly ? "true" : "false",
+//                secure ? "true" : "false"
+//        ));
+//
+//        System.out.println("Set-Cookie header: " + cookie);
+//    }
+public void createCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+    StringBuilder cookieBuilder = new StringBuilder();
+    cookieBuilder.append(name).append("=").append(value).append("; ");
+    cookieBuilder.append("Path=/; ");
+    cookieBuilder.append("Max-Age=").append(maxAge).append("; ");
 
-        Cookie cookie = new Cookie(name, value);
-
-        cookie.setPath("/");
-        cookie.setHttpOnly(httpOnly);
-        cookie.setSecure(secure);
-        cookie.setMaxAge(maxAge);
-
-
-        response.addHeader("Set-Cookie", String.format(
-                "%s=%s; Path=%s; Max-Age=%d; HttpOnly=%s; Secure=%s; SameSite=Lax",
-                cookie.getName(),
-                cookie.getValue(),
-                cookie.getPath(),
-                cookie.getMaxAge(),
-                httpOnly ? "true" : "false",
-                secure ? "true" : "false"
-        ));
-
-        System.out.println("Set-Cookie header: " + cookie);
+    if (httpOnly) {
+        cookieBuilder.append("HttpOnly; ");
     }
+    if (secure) {
+        cookieBuilder.append("Secure; ");
+        // Если secure true, можно использовать SameSite=None
+        cookieBuilder.append("SameSite=None");
+    } else {
+        // Если secure false (т.е. без HTTPS), лучше использовать Lax или Strict.
+        cookieBuilder.append("SameSite=Lax");
+    }
+
+    String cookieHeader = cookieBuilder.toString();
+    response.addHeader("Set-Cookie", cookieHeader);
+    System.out.println("Set-Cookie header: " + cookieHeader);
+}
 
     public String createUserFingerprint() {
         SecureRandom secureRandom = new SecureRandom();

@@ -185,11 +185,9 @@ public class AuthenticationService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        // Генерация userFingerprint
         String userFingerprint = jwtUtils.createUserFingerprint();
         System.out.println("Generated userFingerprint: " + userFingerprint);
 
-        // Создание userFingerprintHash
         String userFingerprintHash = jwtUtils.hashFingerprint(userFingerprint);
         System.out.println("Generated userFingerprintHash: " + userFingerprintHash);
 
