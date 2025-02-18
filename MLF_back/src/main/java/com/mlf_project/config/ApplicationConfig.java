@@ -18,6 +18,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.springframework.http.HttpHeaders.*;
 
@@ -54,11 +55,9 @@ public class ApplicationConfig {
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
         config.setAllowedHeaders(Arrays.asList(
-                ORIGIN,
                 CONTENT_TYPE,
                 ACCEPT,
-                AUTHORIZATION,
-                "Set-Cookie"
+                AUTHORIZATION
         ));
         config.setAllowedMethods(Arrays.asList(
                 "GET",
@@ -67,7 +66,8 @@ public class ApplicationConfig {
                 "PUT",
                 "PATCH"
         ));
-        config.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
+        config.setMaxAge(3600L);
+        config.setExposedHeaders(List.of("Set-Cookie"));
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
