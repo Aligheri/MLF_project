@@ -35,6 +35,7 @@ export class NavbarComponent implements OnInit {
   logout(token: string) {
     this.service.logout({Authorization: token}).subscribe({
       next: () => {
+        document.cookie = 'fingerprint=; Max-Age=0; path=/;';
         sessionStorage.removeItem('token');
         window.location.reload();
       },
