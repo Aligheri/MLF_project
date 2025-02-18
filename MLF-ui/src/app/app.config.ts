@@ -1,4 +1,4 @@
-import {ApplicationConfig, importProvidersFrom} from '@angular/core';
+import {ApplicationConfig} from '@angular/core';
 
 import {provideRouter} from "@angular/router";
 import {routes} from "./app.routes";
@@ -10,7 +10,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withFetch(), withInterceptorsFromDi()),
+    provideHttpClient(withInterceptorsFromDi(),withFetch()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpTokenInterceptor,
