@@ -15,7 +15,7 @@ export interface ValidateToken$Params {
 export function validateToken(http: HttpClient, rootUrl: string, params: ValidateToken$Params, context?: HttpContext): Observable<StrictHttpResponse<MessageResponse>> {
   const rb = new RequestBuilder(rootUrl, validateToken.PATH, 'post');
   if (params) {
-    rb.body(params.body, 'text/plain');
+    rb.body(params.body, 'application/json');
   }
 
   return http.request(

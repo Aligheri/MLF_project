@@ -1046,9 +1046,6 @@
           "type": {
             "type": "string"
           },
-          "refreshToken": {
-            "type": "string"
-          },
           "id": {
             "type": "integer",
             "format": "int64"

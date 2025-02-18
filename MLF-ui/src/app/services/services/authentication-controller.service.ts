@@ -152,9 +152,7 @@ export class AuthenticationControllerService extends BaseService {
    */
   loginUser(params: LoginUser$Params, context?: HttpContext): Observable<AuthenticationResponse> {
     return this.loginUser$Response(params, context).pipe(
-      map((r: StrictHttpResponse<AuthenticationResponse>): AuthenticationResponse => r.body,{
-        withCredentials: true
-      })
+      map((r: StrictHttpResponse<AuthenticationResponse>): AuthenticationResponse => r.body)
     );
   }
 
