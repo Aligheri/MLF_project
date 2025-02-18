@@ -24,7 +24,7 @@ import java.security.NoSuchAlgorithmException;
 @RequestMapping("/api/auth")
 @PropertySource("classpath:application.properties")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200/*", allowCredentials = "true", maxAge = 86400)
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RestController
 public class AuthenticationController {
 
@@ -53,7 +53,6 @@ public class AuthenticationController {
     public ResponseEntity<AuthenticationResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) throws NoSuchAlgorithmException {
         logger.info("Attempting to authenticate user: {}", loginRequest.getUsername());
         return ResponseEntity.ok(authenticationService.authenticateUser(loginRequest, response, issuerId));
-
     }
 
     @PostMapping("/refresh")
@@ -95,23 +94,4 @@ public class AuthenticationController {
     public MessageResponse validateToken(@RequestBody String token) throws GeneralSecurityException {
         return authenticationService.isTokenExpired(token);
     }
-
-//    @PostMapping("/validate-token")
-//    public ResponseEntity<Map<String, String>> validateToken(@RequestBody String token, HttpServletRequest request) {
-//        try {
-//            boolean isValid = utils.validateToken(token, request);
-//            logger.info("Token validation result: " + isValid);
-//            logger.info(token);
-//
-//            if (isValid) {
-//                return ResponseEntity.ok(Map.of("message", "Token is valid"));
-//            } else {
-//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-//                        .body(Map.of("message", "Token is invalid or expired"));
-//            }
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(Map.of("message", "Error validating token"));
-//        }
-//    }
 }
