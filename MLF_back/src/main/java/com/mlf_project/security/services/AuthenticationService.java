@@ -18,6 +18,7 @@ import com.mlf_project.security.jwt.RefreshTokenService;
 import com.mlf_project.security.jwt.TokenCipher;
 import com.mlf_project.security.jwt.TokenRevoker;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -33,7 +34,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -71,7 +71,6 @@ public class AuthenticationService {
 
     @Value("${mailing.frontend.activation-url}")
     private String activationUrl;
-
 
     public MessageResponse registerUser(RegisterRequest registerRequest) throws MessagingException {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
@@ -166,12 +165,19 @@ public class AuthenticationService {
         return codeBuilder.toString();
     }
 
+
     public void deleteCookie(HttpServletResponse response, String name) {
-        String cookieValue = name + "=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Strict";
-        response.addHeader("Set-Cookie", cookieValue);
+        Cookie cookie = new Cookie(name, null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        logger.info("Кука удалена: " + name);
     }
 
     public AuthenticationResponse authenticateUser(LoginRequest loginRequest, HttpServletResponse response, String issuerId) throws NoSuchAlgorithmException {
+
         Authentication authentication;
         try {
             authentication = authenticationManager
@@ -180,7 +186,6 @@ public class AuthenticationService {
             System.out.println("Auth error " + e);
             throw e;
         }
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -188,12 +193,12 @@ public class AuthenticationService {
         String userFingerprint = jwtUtils.createUserFingerprint();
         System.out.println("Generated userFingerprint: " + userFingerprint);
 
+        jwtUtils.createCookie(response, "fingerprint", userFingerprint, 24 * 60 * 60, true);
+
         String userFingerprintHash = jwtUtils.hashFingerprint(userFingerprint);
         System.out.println("Generated userFingerprintHash: " + userFingerprintHash);
 
         String jwt = jwtUtils.generateAccessTokenFromUserDetails(userDetails, issuerId, userFingerprintHash);
-
-        jwtUtils.createCookie(response, "fingerprint", userFingerprint, 24 * 60 * 60, true, false);
 
         String cipheredJwt;
         try {
@@ -205,9 +210,8 @@ public class AuthenticationService {
         List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-
-        return new AuthenticationResponse(cipheredJwt, refreshToken.getToken(), userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
+        logger.info("Cipered JWT :" + cipheredJwt);
+        return new AuthenticationResponse(cipheredJwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
     }
 
     public RefreshTokenResponse refreshToken(RefreshTokenRequest request, String issuerId, HttpServletResponse response) {
@@ -242,7 +246,7 @@ public class AuthenticationService {
     public MessageResponse logout(String jwtInHex, HttpServletResponse response, String cookieName) {
         MessageResponse messageResponse;
         try {
-            deleteCookie(response, "fingerprint");
+            deleteCookie(response, cookieName);
             tokenRevoker.revokeToken(jwtInHex);
             messageResponse = new MessageResponse("Token successfully revoked!");
         } catch (Exception e) {
