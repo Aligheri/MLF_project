@@ -39,8 +39,9 @@ export class LoginComponent {
       next: (response: AuthenticationResponse) => {
         console.log('Received response...');
         console.log('Parsed Body:', response);
+        console.log('Cookies:', document.cookie);
 
-        // let token: string | undefined = responseBody?.token;
+
         const token = response.token;
         if (token) {
           this.tokenService.token = token;
