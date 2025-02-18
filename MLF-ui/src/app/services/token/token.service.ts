@@ -15,12 +15,18 @@ export class TokenService {
 
 
   set token(token: string) {
-    sessionStorage.setItem('token', token);
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      sessionStorage.setItem("token", token);
+    }
   }
 
   get token() {
-    return sessionStorage.getItem('token') as string;
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      return sessionStorage.getItem("token") as string;
+    }
+    return "";
   }
+
 
   isTokenValid(): Observable<boolean> {
     const token = this.token;
