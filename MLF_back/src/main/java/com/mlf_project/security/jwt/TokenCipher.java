@@ -27,11 +27,9 @@ public class TokenCipher {
     }
 
     public String decipherToken(String jwt) throws GeneralSecurityException {
-        System.out.println("Deciphering token: " + jwt);
+        logger.info("Deciphering token: " + jwt);
         Aead aead = this.keysetHandle.getPrimitive(Aead.class);
-//        byte[] decrypted = aead.decrypt(java.util.Base64.getDecoder().decode(jwt), null);
         byte[] decrypted = aead.decrypt(java.util.Base64.getDecoder().decode(jwt.trim()), null);
         return new String(decrypted);
     }
-
 }
