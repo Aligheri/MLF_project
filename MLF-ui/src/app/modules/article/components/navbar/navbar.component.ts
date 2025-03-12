@@ -2,13 +2,15 @@ import {Component, OnInit} from '@angular/core';
 import {Router, RouterLink} from "@angular/router";
 import {AuthenticationControllerService} from "../../../../services/services/authentication-controller.service";
 import {TokenService} from "../../../../services/token/token.service";
+import {SearchComponent} from "../search/search.component";
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   templateUrl: './navbar.component.html',
   imports: [
-    RouterLink
+    RouterLink,
+    SearchComponent
   ],
   styleUrl: './navbar.component.scss'
 })
