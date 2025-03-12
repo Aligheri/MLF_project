@@ -47,7 +47,7 @@ export class LoginComponent {
           this.tokenService.token = token;
           console.log('Token found and stored.');
 
-          this.router.navigate(['article']).then((success) => {
+          this.router.navigate(['article/my-articles']).then((success) => {
             if (success) {
               console.log('✅ Navigation to "article" successful.');
             } else {
