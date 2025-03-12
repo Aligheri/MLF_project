@@ -18,6 +18,11 @@ public class ArticleSpecification {
         return Specification.where(withOwnerId(ownerId)).and(withArchived(archived));
     }
 
+    public static Specification<Article> withTitleLike(String title) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + title.toLowerCase() + "%");
+    }
+
     public static Specification<Article> byTopicIdAndUserId(Long topicId, Long userId) {
         return (root, query, criteriaBuilder) -> {
             Join<Article, User> userJoin = root.join("owner");

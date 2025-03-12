@@ -4,8 +4,10 @@
   <div
     *ngFor="let article of articleResponse"
     class="article-item"
+    [id]="'article-' + article.id"
   >
-    <h3 class="article-title">{{ article.title }}</h3>
+
+  <h3 class="article-title">{{ article.title }}</h3>
     <p class="article-topic">
       Topic ID: {{ article.topicId ? article.topicId : 'Not assigned' }}
     </p>

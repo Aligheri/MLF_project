@@ -11,6 +11,7 @@ import { StrictHttpResponse } from '../strict-http-response';
 
 import { archiveArticle } from '../fn/articles/archive-article';
 import { ArchiveArticle$Params } from '../fn/articles/archive-article';
+import { Article } from '../models/article';
 import { ArticleResponse } from '../models/article-response';
 import { createArticle } from '../fn/articles/create-article';
 import { CreateArticle$Params } from '../fn/articles/create-article';
@@ -20,6 +21,8 @@ import { deleteArticle } from '../fn/articles/delete-article';
 import { DeleteArticle$Params } from '../fn/articles/delete-article';
 import { deleteArticlesByTopic } from '../fn/articles/delete-articles-by-topic';
 import { DeleteArticlesByTopic$Params } from '../fn/articles/delete-articles-by-topic';
+import { findArticleByTitle } from '../fn/articles/find-article-by-title';
+import { FindArticleByTitle$Params } from '../fn/articles/find-article-by-title';
 import { getArchivedArticles } from '../fn/articles/get-archived-articles';
 import { GetArchivedArticles$Params } from '../fn/articles/get-archived-articles';
 import { getArticles } from '../fn/articles/get-articles';
@@ -180,6 +183,31 @@ export class ArticlesService extends BaseService {
   getArchivedArticles(params?: GetArchivedArticles$Params, context?: HttpContext): Observable<Array<ArticleResponse>> {
     return this.getArchivedArticles$Response(params, context).pipe(
       map((r: StrictHttpResponse<Array<ArticleResponse>>): Array<ArticleResponse> => r.body)
+    );
+  }
+
+  /** Path part for operation `findArticleByTitle()` */
+  static readonly FindArticleByTitlePath = '/articles/find-article';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `findArticleByTitle()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  findArticleByTitle$Response(params: FindArticleByTitle$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<Article>>> {
+    return findArticleByTitle(this.http, this.rootUrl, params, context);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `findArticleByTitle$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  findArticleByTitle(params: FindArticleByTitle$Params, context?: HttpContext): Observable<Array<Article>> {
+    return this.findArticleByTitle$Response(params, context).pipe(
+      map((r: StrictHttpResponse<Array<Article>>): Array<Article> => r.body)
     );
   }
 

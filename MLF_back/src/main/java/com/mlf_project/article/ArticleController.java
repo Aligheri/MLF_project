@@ -83,5 +83,9 @@ public class ArticleController {
         return ResponseEntity.noContent().build();
     }
 
-
+    @GetMapping("/find-article")
+    public ResponseEntity<List<Article>> findArticleByTitle(@RequestParam String title, Authentication authentication) {
+        List<Article> articles = articleService.findArticleByTitle(title, authentication);
+        return ResponseEntity.ok(articles);
+    }
 }
