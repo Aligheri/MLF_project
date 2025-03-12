@@ -509,6 +509,39 @@
         }
       }
     },
+    "/articles/find-article": {
+      "get": {
+        "tags": [
+          "articles"
+        ],
+        "operationId": "findArticleByTitle",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Article"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/topics": {
       "get": {
         "tags": [
