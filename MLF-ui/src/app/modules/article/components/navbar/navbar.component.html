@@ -38,15 +38,12 @@
           </a>
         </li>
       </ul>
-      <form class="d-flex gap-2 align-items-center" role="search">
-        <input class="form-control" type="search" placeholder="Find an article" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit"><i class="fas fa-search"></i></button>
-        <span>Welcome to</span>
-        <span class="text-capitalize fw-bold">MLF</span>
+      <app-search></app-search>
+      <span>Welcome to &nbsp;</span>
+        <span class="text-capitalize fw-bold"> MLF</span>
         <button class="btn btn-link" type="button" (click)="logout(token)">
           <i class="fas fa-door-open"></i>
         </button>
-      </form>
     </div>
   </div>
 </nav>

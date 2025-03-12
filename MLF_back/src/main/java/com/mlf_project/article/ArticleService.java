@@ -137,4 +137,17 @@ public class ArticleService {
 
         return articleRepository.findAll(ArticleSpecification.withOwnerIdAndArchived(user.getId(), true));
     }
+
+    public List<Article> findArticleByTitle(String title, Authentication connectedUser) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) connectedUser.getPrincipal();
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+
+        Specification<Article> spec = Specification
+                .where(ArticleSpecification.withOwnerId(user.getId()))
+                .and(ArticleSpecification.withTitleLike(title));
+
+        return articleRepository.findAll(spec);
+    }
 }

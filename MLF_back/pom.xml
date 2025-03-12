@@ -117,19 +117,19 @@
         <dependency>
             <groupId>com.google.crypto.tink</groupId>
             <artifactId>tink</artifactId>
-            <version>1.13.0</version>
+            <version>1.13.0</version> <!-- Use the latest stable version available -->
         </dependency>
 
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.18.2</version> <!-- Use the latest version available -->
+            <version>3.18.2</version> <!-- Use the latest stable version available -->
         </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.15</version> <!-- Use the latest version available -->
+            <version>1.15</version> <!-- Use the latest stable version available -->
         </dependency>
 
         <dependency>

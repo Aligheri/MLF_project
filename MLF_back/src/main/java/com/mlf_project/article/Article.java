@@ -1,5 +1,6 @@
 package com.mlf_project.article;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mlf_project.entities.User;
 import com.mlf_project.topic.Topic;
 import jakarta.persistence.*;
@@ -25,6 +26,7 @@ public class Article {
 
     @ManyToOne
     @JoinColumn(name = "topic_id")
+    @JsonBackReference
     private Topic topic;
 
     private LocalDateTime createdAt;
@@ -34,7 +36,9 @@ public class Article {
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonBackReference
     private User owner;
 
     private boolean attached = false;
+
 }

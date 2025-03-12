@@ -1,0 +1,20 @@
+<form class="d-flex gap-2 align-items-center" (submit)="$event.preventDefault()">
+  <input
+    class="form-control"
+    type="search"
+    placeholder="Find an article"
+    aria-label="Search"
+    [formControl]="searchControl"
+  />
+  <button class="btn btn-outline-success" type="submit">
+    <i class="fas fa-search"></i>
+  </button>
+</form>
+
+<ul *ngIf="articles.length > 0" class="list-group mt-2">
+  <li class="list-group-item" *ngFor="let article of articles">
+    <a [routerLink]="['/article', article.id]" (click)="article.id && highlightArticle(article.id)">
+      {{ article.title }}
+    </a>
+  </li>
+</ul>

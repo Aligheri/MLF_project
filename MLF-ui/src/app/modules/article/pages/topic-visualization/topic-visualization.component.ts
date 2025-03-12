@@ -25,11 +25,20 @@ export class TopicVisualizationComponent implements OnInit {
 
   loadTopicTree(): void {
     this.route.queryParams.subscribe(params => {
-      const learningPathId = params["learningPathId"]
+      console.log("Query params:", params); // Проверим, какие параметры вообще приходят
+      const rawId = params["learningPathId"]; // Используем правильный ключ
+      console.log("Raw ID from params:", rawId, "Тип:", typeof rawId);
 
-      this.topicService.getTopicTree(learningPathId).subscribe((data: any) => {
-        this.createTree(data);
-      });
+      const id = Number(rawId);
+      console.log("Преобразованный ID:", id, "Тип:", typeof id);
+
+      if (!isNaN(id)) {
+        this.topicService.getTopicTree({ id }).subscribe((data: any) => {
+          this.createTree(data);
+        });
+      } else {
+        console.error("❌ Ошибка: id не является числом! Проверь, что передаётся корректное значение.");
+      }
     });
   }
 
