@@ -1,1 +1,2 @@
-README soon 
+ README soon 
+full-stack project
