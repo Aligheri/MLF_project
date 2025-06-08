@@ -1,2 +1,2 @@
  README soon 
-full-stack project
+ full stack application for highly efficient learning
