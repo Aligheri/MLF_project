@@ -1,4 +1,5 @@
  README soon 
- full stack application for highly efficient learning
+ ---
+ Full stack application for highly efficient learning
 ---
-Auth on github wiki :https://github.com/Aligheri/jwt-owasp-based-starter/wiki.
+Authentication mechanism on github wiki: https://github.com/Aligheri/jwt-owasp-based-starter/wiki.
